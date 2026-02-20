@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Entry Strike - 仕訳格闘ゲーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Hiragino Sans', sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        .game-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            background: linear-gradient(180deg, #1a0a2e 0%, #0d1b2a 50%, #1b263b 100%);
+            overflow: hidden;
+        }
+
+        /* バトルフィールド背景 */
+        .battlefield {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 100%);
+            border-top: 2px solid #415a77;
+        }
+
+        .ground-line {
+            position: absolute;
+            bottom: 148px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, #778da9 50%, transparent 100%);
+        }
+
+        /* ヘッダーUI */
+        .game-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            z-index: 100;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+
+        .player-status {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .hp-bar-container {
+            width: 200px;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            border: 2px solid #e63946;
+            overflow: hidden;
+        }
+
+        .hp-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #e63946 0%, #ff6b6b 100%);
+            transition: width 0.3s ease;
+        }
+
+        .hp-text {
+            font-size: 12px;
+            color: #e63946;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd60a;
+        }
+
+        .combo-display {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            text-align: right;
+        }
+
+        .combo-count {
+            font-size: 48px;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-shadow: 0 0 20px #ff6b6b;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.2s ease;
+        }
+
+        .combo-count.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .combo-label {
+            font-size: 14px;
+            color: #ffd60a;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        /* 敵（取引）の表示 */
+        .enemy {
+            position: absolute;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            border-radius: 12px;
+            border: 3px solid #e63946;
+            box-shadow: 0 0 30px rgba(230, 57, 70, 0.5);
+            animation: float 2s ease-in-out infinite;
+            z-index: 50;
+            max-width: 300px;
+        }
+
+        .enemy.boss {
+            border-color: #ffd60a;
+            box-shadow: 0 0 40px rgba(255, 214, 10, 0.6);
+            background: linear-gradient(135deg, #3d2d00 0%, #1a1500 100%);
+        }
+
+        .enemy.boss::before {
+            content: "👑 BOSS";
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffd60a;
+            color: #000;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .enemy-level {
+            font-size: 10px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .enemy-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .enemy-hp-bar {
+            width: 100%;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .enemy-hp {
+            height: 100%;
+            background: linear-gradient(90deg, #e63946 0%, #ff6b6b 100%);
+            transition: width 0.3s ease;
+        }
+
+        /* 入力エリア */
+        .input-area {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            z-index: 100;
+        }
+
+        .journal-entry {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #415a77;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .entry-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .entry-label {
+            width: 50px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .entry-label.debit {
+            color: #4ecdc4;
+        }
+
+        .entry-label.credit {
+            color: #ff6b6b;
+        }
+
+        .entry-input {
+            flex: 1;
+            padding: 12px 15px;
+            background: #1a1a2e;
+            border: 2px solid #415a77;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .entry-input:focus {
+            border-color: #4ecdc4;
+            box-shadow: 0 0 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .entry-input.correct {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.2);
+        }
+
+        .entry-input.incorrect {
+            border-color: #e63946;
+            background: rgba(230, 57, 70, 0.2);
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(78, 205, 196, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 攻撃エフェクト */
+        .attack-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 72px;
+            font-weight: bold;
+            color: #4ecdc4;
+            text-shadow: 0 0 30px #4ecdc4;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 200;
+        }
+
+        .attack-effect.show {
+            animation: attackFlash 0.5s ease-out forwards;
+        }
+
+        @keyframes attackFlash {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+        }
+
+        .damage-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: #e63946;
+            text-shadow: 0 0 20px #e63946;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 200;
+        }
+
+        .damage-effect.show {
+            animation: damageFlash 0.5s ease-out forwards;
+        }
+
+        @keyframes damageFlash {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) translateY(-50px); }
+        }
+
+        /* オーバーレイ */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .overlay-content {
+            text-align: center;
+            max-width: 500px;
+            padding: 40px;
+        }
+
+        .game-title {
+            font-size: 48px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #4ecdc4 0%, #ffd60a 50%, #ff6b6b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .game-subtitle {
+            font-size: 18px;
+            color: #778da9;
+            margin-bottom: 30px;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .instructions h3 {
+            color: #4ecdc4;
+            margin-bottom: 10px;
+        }
+
+        .start-btn {
+            padding: 20px 60px;
+            background: linear-gradient(135deg, #e63946 0%, #ff6b6b 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(230, 57, 70, 0.5);
+        }
+
+        /* 候補リスト */
+        .suggestions {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background: #1a1a2e;
+            border: 2px solid #415a77;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .suggestions.show {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+            font-size: 14px;
+        }
+
+        .suggestion-item:hover {
+            background: #2d2d4a;
+        }
+
+        .suggestion-item .en {
+            color: #4ecdc4;
+        }
+
+        .suggestion-item .jp {
+            color: #aaa;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        /* タイマーバー */
+        .timer-bar {
+            position: absolute;
+            bottom: 160px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 500px;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e63946 0%, #ffd60a 50%, #4ecdc4 100%);
+            transition: width 0.1s linear;
+        }
+
+        /* 結果画面 */
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .result-stat {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .result-stat .label {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .result-stat .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 600px) {
+            .game-title {
+                font-size: 32px;
+            }
+
+            .enemy {
+                max-width: 250px;
+                padding: 10px 15px;
+            }
+
+            .enemy-title {
+                font-size: 14px;
+            }
+
+            .hp-bar-container {
+                width: 120px;
+            }
+
+            .stat-box {
+                padding: 8px 10px;
+            }
+
+            .stat-value {
+                font-size: 18px;
+            }
+
+            .entry-input {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            .combo-count {
+                font-size: 36px;
+            }
+        }
+
+        /* プレイヤーキャラ */
+        .player-character {
+            position: absolute;
+            bottom: 160px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 48px;
+            z-index: 40;
+        }
+
+        .player-character.attacking {
+            animation: playerAttack 0.3s ease;
+        }
+
+        @keyframes playerAttack {
+            0% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-20px) scale(1.2); }
+            100% { transform: translateX(-50%) translateY(0); }
+        }
+
+        .player-character.damaged {
+            animation: playerDamage 0.3s ease;
+        }
+
+        @keyframes playerDamage {
+            0%, 100% { transform: translateX(-50%); filter: none; }
+            25%, 75% { transform: translateX(-40%); filter: brightness(2) hue-rotate(180deg); }
+            50% { transform: translateX(-60%); filter: brightness(2) hue-rotate(180deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- スタート画面 -->
+        <div class="overlay show" id="startOverlay">
+            <div class="overlay-content">
+                <h1 class="game-title">ENTRY STRIKE</h1>
+                <p class="game-subtitle">仕訳格闘ゲーム</p>
+
+                <div class="instructions">
+                    <h3>遊び方</h3>
+                    <p>📝 取引内容が画面に現れる！</p>
+                    <p>⚔️ 正しい借方(Dr)と貸方(Cr)の勘定科目を入力</p>
+                    <p>💥 正解すると敵にダメージ！</p>
+                    <p>🔥 コンボを繋いで強敵を倒せ！</p>
+                    <p>⏱️ 時間切れでダメージを受ける！</p>
+                </div>
+
+                <button class="start-btn" onclick="startGame()">FIGHT!</button>
+            </div>
+        </div>
+
+        <!-- ゲームオーバー画面 -->
+        <div class="overlay" id="gameOverOverlay">
+            <div class="overlay-content">
+                <h1 class="game-title" id="resultTitle">GAME OVER</h1>
+
+                <div class="result-stats">
+                    <div class="result-stat">
+                        <div class="label">SCORE</div>
+                        <div class="value" id="finalScore">0</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="label">MAX COMBO</div>
+                        <div class="value" id="finalCombo">0</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="label">ENEMIES</div>
+                        <div class="value" id="finalEnemies">0</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="label">ACCURACY</div>
+                        <div class="value" id="finalAccuracy">0%</div>
+                    </div>
+                </div>
+
+                <button class="start-btn" onclick="startGame()">RETRY</button>
+            </div>
+        </div>
+
+        <!-- ゲーム画面 -->
+        <div class="game-header">
+            <div class="player-status">
+                <div class="hp-bar-container">
+                    <div class="hp-bar" id="playerHp"></div>
+                </div>
+                <div class="hp-text">HP: <span id="hpText">100</span>/100</div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-label">Score</div>
+                    <div class="stat-value" id="score">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Level</div>
+                    <div class="stat-value" id="level">1</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="combo-display">
+            <div class="combo-count" id="comboCount">0</div>
+            <div class="combo-label">COMBO</div>
+        </div>
+
+        <!-- 敵表示エリア -->
+        <div class="enemy" id="enemy" style="top: 150px; left: 50%; transform: translateX(-50%);">
+            <div class="enemy-level" id="enemyLevel">Lv.1</div>
+            <div class="enemy-title" id="enemyTitle">備品の購入（現金）</div>
+            <div class="enemy-hp-bar">
+                <div class="enemy-hp" id="enemyHp"></div>
+            </div>
+        </div>
+
+        <!-- タイマー -->
+        <div class="timer-bar">
+            <div class="timer-fill" id="timerFill"></div>
+        </div>
+
+        <!-- プレイヤー -->
+        <div class="player-character" id="player">⚔️</div>
+
+        <!-- 地面 -->
+        <div class="ground-line"></div>
+        <div class="battlefield"></div>
+
+        <!-- 入力エリア -->
+        <div class="input-area">
+            <div class="journal-entry">
+                <div class="entry-row">
+                    <span class="entry-label debit">Dr:</span>
+                    <input type="text" class="entry-input" id="debitInput" placeholder="借方勘定科目" autocomplete="off">
+                </div>
+                <div class="entry-row">
+                    <span class="entry-label credit">Cr:</span>
+                    <input type="text" class="entry-input" id="creditInput" placeholder="貸方勘定科目" autocomplete="off">
+                </div>
+                <button class="submit-btn" onclick="submitEntry()">ATTACK!</button>
+            </div>
+        </div>
+
+        <!-- エフェクト -->
+        <div class="attack-effect" id="attackEffect">HIT!</div>
+        <div class="damage-effect" id="damageEffect">MISS!</div>
+    </div>
+
+    <script>
+        // 勘定科目データ
+        const ACCOUNTS = {
+            // 資産
+            'cash': ['現金', 'Cash'],
+            'accounts receivable': ['売掛金', 'Accounts Receivable'],
+            'notes receivable': ['受取手形', 'Notes Receivable'],
+            'inventory': ['棚卸資産', 'Inventory'],
+            'supplies': ['消耗品', 'Supplies'],
+            'prepaid expenses': ['前払費用', 'Prepaid Expenses'],
+            'equipment': ['備品', 'Equipment'],
+            'buildings': ['建物', 'Buildings'],
+            'land': ['土地', 'Land'],
+            'vehicles': ['車両', 'Vehicles'],
+            'accumulated depreciation': ['減価償却累計額', 'Accumulated Depreciation'],
+            'right-of-use asset': ['使用権資産', 'Right-of-Use Asset'],
+            'goodwill': ['のれん', 'Goodwill'],
+
+            // 負債
+            'accounts payable': ['買掛金', 'Accounts Payable'],
+            'notes payable': ['支払手形', 'Notes Payable'],
+            'unearned revenue': ['前受収益', 'Unearned Revenue'],
+            'accrued expenses': ['未払費用', 'Accrued Expenses'],
+            'bonds payable': ['社債', 'Bonds Payable'],
+            'lease liability': ['リース負債', 'Lease Liability'],
+
+            // 純資産
+            'common stock': ['資本金', 'Common Stock'],
+            'retained earnings': ['利益剰余金', 'Retained Earnings'],
+            'investment in subsidiary': ['子会社株式', 'Investment in Subsidiary'],
+
+            // 収益
+            'sales': ['売上', 'Sales'],
+            'service revenue': ['役務収益', 'Service Revenue'],
+            'interest income': ['受取利息', 'Interest Income'],
+
+            // 費用
+            'cost of goods sold': ['売上原価', 'Cost of Goods Sold'],
+            'salaries expense': ['給与', 'Salaries Expense'],
+            'rent expense': ['支払家賃', 'Rent Expense'],
+            'depreciation expense': ['減価償却費', 'Depreciation Expense'],
+            'supplies expense': ['消耗品費', 'Supplies Expense'],
+            'interest expense': ['支払利息', 'Interest Expense'],
+            'utilities expense': ['水道光熱費', 'Utilities Expense'],
+            'amortization expense': ['償却費', 'Amortization Expense']
+        };
+
+        // 取引データ（レベル別）
+        const TRANSACTIONS = {
+            easy: [
+                {
+                    title: '備品の購入（現金）',
+                    titleEn: 'Purchase equipment with cash',
+                    debit: ['equipment'],
+                    credit: ['cash'],
+                    hint: '資産の増加 / 資産の減少'
+                },
+                {
+                    title: '売掛金の回収',
+                    titleEn: 'Collection of accounts receivable',
+                    debit: ['cash'],
+                    credit: ['accounts receivable'],
+                    hint: '現金が増える / 売掛金が減る'
+                },
+                {
+                    title: '消耗品の購入（現金）',
+                    titleEn: 'Purchase supplies with cash',
+                    debit: ['supplies'],
+                    credit: ['cash'],
+                    hint: '消耗品資産 / 現金の減少'
+                },
+                {
+                    title: '買掛金の支払い',
+                    titleEn: 'Payment of accounts payable',
+                    debit: ['accounts payable'],
+                    credit: ['cash'],
+                    hint: '負債の減少 / 現金の減少'
+                },
+                {
+                    title: '売上（現金）',
+                    titleEn: 'Cash sales',
+                    debit: ['cash'],
+                    credit: ['sales'],
+                    hint: '現金が増える / 売上収益'
+                }
+            ],
+            medium: [
+                {
+                    title: '減価償却の計上',
+                    titleEn: 'Record depreciation',
+                    debit: ['depreciation expense'],
+                    credit: ['accumulated depreciation'],
+                    hint: '費用の発生 / 資産のマイナス'
+                },
+                {
+                    title: '売上（掛け）',
+                    titleEn: 'Sales on account',
+                    debit: ['accounts receivable'],
+                    credit: ['sales'],
+                    hint: '売掛金が増える / 売上収益'
+                },
+                {
+                    title: '給与の支払い',
+                    titleEn: 'Payment of salaries',
+                    debit: ['salaries expense'],
+                    credit: ['cash'],
+                    hint: '費用の発生 / 現金の減少'
+                },
+                {
+                    title: '前払費用の計上',
+                    titleEn: 'Prepaid expenses',
+                    debit: ['prepaid expenses'],
+                    credit: ['cash'],
+                    hint: '資産の増加 / 現金の減少'
+                },
+                {
+                    title: '未払費用の計上',
+                    titleEn: 'Accrued expenses',
+                    debit: ['utilities expense'],
+                    credit: ['accrued expenses'],
+                    hint: '費用の発生 / 負債の増加'
+                },
+                {
+                    title: '消耗品の費用化',
+                    titleEn: 'Supplies used',
+                    debit: ['supplies expense'],
+                    credit: ['supplies'],
+                    hint: '費用の発生 / 資産の減少'
+                }
+            ],
+            hard: [
+                {
+                    title: '社債の発行（額面）',
+                    titleEn: 'Issuance of bonds at par',
+                    debit: ['cash'],
+                    credit: ['bonds payable'],
+                    hint: '現金が増える / 負債の増加'
+                },
+                {
+                    title: '前受収益の収益化',
+                    titleEn: 'Earned portion of unearned revenue',
+                    debit: ['unearned revenue'],
+                    credit: ['service revenue'],
+                    hint: '負債の減少 / 収益の発生'
+                },
+                {
+                    title: '支払利息の計上',
+                    titleEn: 'Interest expense accrual',
+                    debit: ['interest expense'],
+                    credit: ['accrued expenses'],
+                    hint: '費用の発生 / 負債の増加'
+                }
+            ],
+            boss: [
+                {
+                    title: '【BOSS】リース資産の計上',
+                    titleEn: 'Lease asset recognition',
+                    debit: ['right-of-use asset'],
+                    credit: ['lease liability'],
+                    hint: '使用権資産 / リース負債',
+                    isBoss: true
+                },
+                {
+                    title: '【BOSS】のれんの計上',
+                    titleEn: 'Goodwill recognition',
+                    debit: ['goodwill'],
+                    credit: ['cash'],
+                    hint: '無形資産 / 現金支出',
+                    isBoss: true
+                },
+                {
+                    title: '【BOSS】連結：子会社株式の消去',
+                    titleEn: 'Elimination of investment',
+                    debit: ['common stock'],
+                    credit: ['investment in subsidiary'],
+                    hint: '子会社の資本金 / 親会社の投資勘定',
+                    isBoss: true
+                }
+            ]
+        };
+
+        // ゲーム状態
+        let gameState = {
+            hp: 100,
+            score: 0,
+            level: 1,
+            combo: 0,
+            maxCombo: 0,
+            enemiesDefeated: 0,
+            totalAttempts: 0,
+            correctAttempts: 0,
+            currentTransaction: null,
+            timeLeft: 100,
+            maxTime: 100,
+            timerInterval: null,
+            isRunning: false
+        };
+
+        // DOM要素
+        const elements = {
+            playerHp: document.getElementById('playerHp'),
+            hpText: document.getElementById('hpText'),
+            score: document.getElementById('score'),
+            level: document.getElementById('level'),
+            comboCount: document.getElementById('comboCount'),
+            enemy: document.getElementById('enemy'),
+            enemyLevel: document.getElementById('enemyLevel'),
+            enemyTitle: document.getElementById('enemyTitle'),
+            enemyHp: document.getElementById('enemyHp'),
+            debitInput: document.getElementById('debitInput'),
+            creditInput: document.getElementById('creditInput'),
+            timerFill: document.getElementById('timerFill'),
+            player: document.getElementById('player'),
+            attackEffect: document.getElementById('attackEffect'),
+            damageEffect: document.getElementById('damageEffect'),
+            startOverlay: document.getElementById('startOverlay'),
+            gameOverOverlay: document.getElementById('gameOverOverlay')
+        };
+
+        // 入力の正規化
+        function normalizeInput(input) {
+            return input.toLowerCase().trim();
+        }
+
+        // 正解判定
+        function checkAnswer(input, correctAnswers) {
+            const normalized = normalizeInput(input);
+
+            for (const answer of correctAnswers) {
+                if (normalized === answer) return true;
+                // 日本語名もチェック
+                if (ACCOUNTS[answer]) {
+                    const jpName = ACCOUNTS[answer][0].toLowerCase();
+                    if (normalized === jpName) return true;
+                }
+            }
+            return false;
+        }
+
+        // 取引を生成
+        function spawnTransaction() {
+            let pool;
+
+            // コンボとレベルに応じて難易度選択
+            if (gameState.combo >= 10 || gameState.level >= 5) {
+                pool = [...TRANSACTIONS.hard, ...TRANSACTIONS.boss];
+            } else if (gameState.combo >= 5 || gameState.level >= 3) {
+                pool = [...TRANSACTIONS.medium, ...TRANSACTIONS.hard];
+            } else if (gameState.level >= 2) {
+                pool = [...TRANSACTIONS.easy, ...TRANSACTIONS.medium];
+            } else {
+                pool = TRANSACTIONS.easy;
+            }
+
+            const transaction = pool[Math.floor(Math.random() * pool.length)];
+            gameState.currentTransaction = transaction;
+
+            // 敵の表示を更新
+            elements.enemyLevel.textContent = `Lv.${gameState.level}`;
+            elements.enemyTitle.textContent = transaction.title;
+            elements.enemyHp.style.width = '100%';
+
+            if (transaction.isBoss) {
+                elements.enemy.classList.add('boss');
+                gameState.maxTime = 150;
+            } else {
+                elements.enemy.classList.remove('boss');
+                gameState.maxTime = Math.max(60, 100 - gameState.level * 5);
+            }
+
+            gameState.timeLeft = gameState.maxTime;
+
+            // 入力をクリア
+            elements.debitInput.value = '';
+            elements.creditInput.value = '';
+            elements.debitInput.className = 'entry-input';
+            elements.creditInput.className = 'entry-input';
+            elements.debitInput.focus();
+
+            // 敵の登場アニメーション
+            elements.enemy.style.animation = 'none';
+            elements.enemy.offsetHeight;
+            elements.enemy.style.animation = 'float 2s ease-in-out infinite';
+        }
+
+        // 回答を送信
+        function submitEntry() {
+            if (!gameState.isRunning || !gameState.currentTransaction) return;
+
+            const debitAnswer = elements.debitInput.value;
+            const creditAnswer = elements.creditInput.value;
+            const transaction = gameState.currentTransaction;
+
+            gameState.totalAttempts++;
+
+            const debitCorrect = checkAnswer(debitAnswer, transaction.debit);
+            const creditCorrect = checkAnswer(creditAnswer, transaction.credit);
+
+            elements.debitInput.className = 'entry-input ' + (debitCorrect ? 'correct' : 'incorrect');
+            elements.creditInput.className = 'entry-input ' + (creditCorrect ? 'correct' : 'incorrect');
+
+            if (debitCorrect && creditCorrect) {
+                // 正解！
+                gameState.correctAttempts++;
+                gameState.combo++;
+                if (gameState.combo > gameState.maxCombo) {
+                    gameState.maxCombo = gameState.combo;
+                }
+
+                // スコア計算
+                const baseScore = transaction.isBoss ? 500 : 100;
+                const comboBonus = Math.floor(gameState.combo * 10);
+                const timeBonus = Math.floor(gameState.timeLeft / 10);
+                const totalScore = baseScore + comboBonus + timeBonus;
+                gameState.score += totalScore;
+
+                gameState.enemiesDefeated++;
+
+                // レベルアップ
+                if (gameState.enemiesDefeated % 5 === 0) {
+                    gameState.level++;
+                    elements.level.textContent = gameState.level;
+                }
+
+                // UI更新
+                updateUI();
+                showAttackEffect(totalScore);
+
+                // 次の敵
+                setTimeout(spawnTransaction, 1000);
+            } else {
+                // 不正解
+                gameState.combo = 0;
+                takeDamage(10);
+                showDamageEffect('MISS!');
+                updateUI();
+            }
+        }
+
+        // ダメージを受ける
+        function takeDamage(amount) {
+            gameState.hp = Math.max(0, gameState.hp - amount);
+            elements.player.classList.add('damaged');
+            setTimeout(() => elements.player.classList.remove('damaged'), 300);
+
+            if (gameState.hp <= 0) {
+                gameOver();
+            }
+        }
+
+        // 攻撃エフェクト
+        function showAttackEffect(score) {
+            elements.attackEffect.textContent = `+${score}`;
+            elements.attackEffect.classList.add('show');
+            elements.player.classList.add('attacking');
+
+            setTimeout(() => {
+                elements.attackEffect.classList.remove('show');
+                elements.player.classList.remove('attacking');
+            }, 500);
+        }
+
+        // ダメージエフェクト
+        function showDamageEffect(text) {
+            elements.damageEffect.textContent = text;
+            elements.damageEffect.classList.add('show');
+
+            setTimeout(() => {
+                elements.damageEffect.classList.remove('show');
+            }, 500);
+        }
+
+        // UI更新
+        function updateUI() {
+            elements.playerHp.style.width = gameState.hp + '%';
+            elements.hpText.textContent = gameState.hp;
+            elements.score.textContent = gameState.score;
+
+            elements.comboCount.textContent = gameState.combo;
+            if (gameState.combo > 0) {
+                elements.comboCount.classList.add('active');
+            } else {
+                elements.comboCount.classList.remove('active');
+            }
+        }
+
+        // タイマー
+        function startTimer() {
+            gameState.timerInterval = setInterval(() => {
+                gameState.timeLeft -= 1;
+                elements.timerFill.style.width = (gameState.timeLeft / gameState.maxTime * 100) + '%';
+
+                if (gameState.timeLeft <= 0) {
+                    // 時間切れ
+                    gameState.combo = 0;
+                    takeDamage(15);
+                    showDamageEffect('TIME UP!');
+                    updateUI();
+
+                    if (gameState.hp > 0) {
+                        spawnTransaction();
+                    }
+                }
+            }, 100);
+        }
+
+        // ゲーム開始
+        function startGame() {
+            gameState = {
+                hp: 100,
+                score: 0,
+                level: 1,
+                combo: 0,
+                maxCombo: 0,
+                enemiesDefeated: 0,
+                totalAttempts: 0,
+                correctAttempts: 0,
+                currentTransaction: null,
+                timeLeft: 100,
+                maxTime: 100,
+                timerInterval: null,
+                isRunning: true
+            };
+
+            elements.startOverlay.classList.remove('show');
+            elements.gameOverOverlay.classList.remove('show');
+
+            updateUI();
+            elements.level.textContent = '1';
+
+            spawnTransaction();
+            startTimer();
+        }
+
+        // ゲームオーバー
+        function gameOver() {
+            gameState.isRunning = false;
+            clearInterval(gameState.timerInterval);
+
+            const accuracy = gameState.totalAttempts > 0
+                ? Math.round(gameState.correctAttempts / gameState.totalAttempts * 100)
+                : 0;
+
+            document.getElementById('resultTitle').textContent =
+                gameState.enemiesDefeated >= 10 ? 'VICTORY!' : 'GAME OVER';
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('finalCombo').textContent = gameState.maxCombo;
+            document.getElementById('finalEnemies').textContent = gameState.enemiesDefeated;
+            document.getElementById('finalAccuracy').textContent = accuracy + '%';
+
+            elements.gameOverOverlay.classList.add('show');
+        }
+
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            if (!gameState.isRunning) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    startGame();
+                }
+                return;
+            }
+
+            if (e.key === 'Enter') {
+                submitEntry();
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                if (document.activeElement === elements.debitInput) {
+                    elements.creditInput.focus();
+                } else {
+                    elements.debitInput.focus();
+                }
+            }
+        });
+
+        // 入力フィールドの設定
+        elements.debitInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                elements.creditInput.focus();
+            }
+        });
+
+        elements.creditInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitEntry();
+            }
+        });
+    </script>
+</body>
+</html>
