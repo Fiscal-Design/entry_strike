@@ -30,15 +30,35 @@
             overflow: hidden;
         }
 
-        /* バトルフィールド背景 */
+        /* 背景エフェクト */
+        .bg-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 100%, rgba(230, 57, 70, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* バトルフィールド */
         .battlefield {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 100px;
-            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 100%);
-            border-top: 2px solid #415a77;
+            height: 200px;
+            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%);
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 195px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent 0%, #4ecdc4 20%, #4ecdc4 80%, transparent 100%);
+            box-shadow: 0 0 20px #4ecdc4;
         }
 
         /* ヘッダーUI */
@@ -50,36 +70,91 @@
             padding: 10px 15px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             z-index: 100;
-            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
         }
 
         .player-status {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
+            gap: 5px;
         }
 
-        .hp-bar-container {
-            width: 120px;
-            height: 16px;
-            background: #333;
-            border-radius: 8px;
+        .hp-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hp-label {
+            font-size: 12px;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .hp-bar-bg {
+            width: 150px;
+            height: 18px;
+            background: #222;
+            border-radius: 9px;
             border: 2px solid #e63946;
             overflow: hidden;
+            position: relative;
         }
 
         .hp-bar {
             height: 100%;
             background: linear-gradient(90deg, #e63946 0%, #ff6b6b 100%);
             transition: width 0.3s ease;
+            position: relative;
         }
 
-        .hp-text {
-            font-size: 12px;
-            color: #ff6b6b;
+        .hp-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 100%);
+        }
+
+        /* 必殺技ゲージ */
+        .special-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .special-label {
+            font-size: 10px;
+            color: #ffd60a;
             font-weight: bold;
+        }
+
+        .special-bar-bg {
+            width: 150px;
+            height: 12px;
+            background: #222;
+            border-radius: 6px;
+            border: 2px solid #ffd60a;
+            overflow: hidden;
+        }
+
+        .special-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #f39c12 0%, #ffd60a 100%);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .special-bar.ready {
+            animation: specialReady 0.5s ease infinite alternate;
+        }
+
+        @keyframes specialReady {
+            from { box-shadow: 0 0 5px #ffd60a; }
+            to { box-shadow: 0 0 20px #ffd60a, 0 0 30px #f39c12; }
         }
 
         .stats {
@@ -89,6 +164,9 @@
 
         .stat-box {
             text-align: center;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 12px;
+            border-radius: 8px;
         }
 
         .stat-label {
@@ -103,291 +181,446 @@
             color: #ffd60a;
         }
 
+        /* コンボ表示 */
         .combo-display {
             position: absolute;
-            top: 60px;
-            right: 15px;
-            text-align: right;
-        }
-
-        .combo-count {
-            font-size: 36px;
-            font-weight: bold;
-            color: #ff6b6b;
-            text-shadow: 0 0 20px #ff6b6b;
+            top: 70px;
+            left: 20px;
             opacity: 0;
             transform: scale(0.5);
             transition: all 0.2s ease;
         }
 
-        .combo-count.active {
+        .combo-display.active {
             opacity: 1;
             transform: scale(1);
         }
 
-        .combo-label {
-            font-size: 11px;
+        .combo-count {
+            font-size: 48px;
+            font-weight: bold;
             color: #ffd60a;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            text-shadow: 0 0 20px #f39c12, 2px 2px 0 #000;
+            line-height: 1;
         }
 
-        /* 敵（取引）の表示 */
-        .enemy-area {
-            position: absolute;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
-            max-width: 400px;
-            z-index: 50;
-        }
-
-        .enemy {
-            padding: 15px;
-            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
-            border-radius: 12px;
-            border: 3px solid #e63946;
-            box-shadow: 0 0 30px rgba(230, 57, 70, 0.5);
-            text-align: center;
-        }
-
-        .enemy.boss {
-            border-color: #ffd60a;
-            box-shadow: 0 0 40px rgba(255, 214, 10, 0.6);
-            background: linear-gradient(135deg, #3d2d00 0%, #1a1500 100%);
-        }
-
-        .enemy.boss::before {
-            content: "BOSS";
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #ffd60a;
-            color: #000;
-            padding: 2px 12px;
-            border-radius: 5px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .enemy-level {
-            font-size: 10px;
-            color: #888;
-            margin-bottom: 5px;
-        }
-
-        .enemy-title {
-            font-size: 18px;
-            font-weight: bold;
+        .combo-label {
+            font-size: 14px;
             color: #fff;
-            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 1px 1px 0 #000;
         }
 
-        .enemy-title-en {
-            font-size: 11px;
-            color: #4ecdc4;
+        /* プレイヤーキャラ */
+        .player {
+            position: absolute;
+            bottom: 200px;
+            left: 15%;
+            font-size: 64px;
+            z-index: 60;
+            transition: all 0.1s ease;
+            filter: drop-shadow(0 0 10px rgba(78, 205, 196, 0.5));
+        }
+
+        .player.attack {
+            animation: playerAttack 0.4s ease-out;
+        }
+
+        @keyframes playerAttack {
+            0% { transform: translateX(0); }
+            30% { transform: translateX(100px) scale(1.2); }
+            50% { transform: translateX(150px) scale(1.3); }
+            100% { transform: translateX(0) scale(1); }
+        }
+
+        .player.damage {
+            animation: playerDamage 0.4s ease;
+        }
+
+        @keyframes playerDamage {
+            0%, 100% { transform: translateX(0); filter: drop-shadow(0 0 10px rgba(78, 205, 196, 0.5)); }
+            20%, 60% { transform: translateX(-20px); filter: brightness(2) drop-shadow(0 0 20px #e63946); }
+            40%, 80% { transform: translateX(10px); filter: brightness(0.5); }
+        }
+
+        .player.special {
+            animation: playerSpecial 0.8s ease-out;
+        }
+
+        @keyframes playerSpecial {
+            0% { transform: translateX(0) scale(1); }
+            20% { transform: translateX(-30px) scale(1.5); }
+            40% { transform: translateX(200px) scale(2); filter: brightness(2) hue-rotate(30deg); }
+            60% { transform: translateX(250px) scale(1.8); }
+            100% { transform: translateX(0) scale(1); }
+        }
+
+        /* 敵キャラ */
+        .enemy {
+            position: absolute;
+            bottom: 200px;
+            right: 10%;
+            z-index: 50;
+            transition: right 0.1s linear;
+        }
+
+        .enemy-sprite {
+            font-size: 64px;
+            filter: drop-shadow(0 0 10px rgba(230, 57, 70, 0.5));
+            transition: transform 0.2s ease;
+        }
+
+        .enemy.boss .enemy-sprite {
+            font-size: 80px;
+            filter: drop-shadow(0 0 20px rgba(255, 214, 10, 0.8));
+        }
+
+        .enemy.hit .enemy-sprite {
+            animation: enemyHit 0.3s ease;
+        }
+
+        @keyframes enemyHit {
+            0% { transform: translateX(0) scale(1); }
+            30% { transform: translateX(30px) scale(0.8); filter: brightness(3); }
+            100% { transform: translateX(0) scale(1); }
+        }
+
+        .enemy.attacking .enemy-sprite {
+            animation: enemyAttack 0.5s ease;
+        }
+
+        @keyframes enemyAttack {
+            0% { transform: translateX(0); }
+            40% { transform: translateX(-150px) scale(1.3); }
+            60% { transform: translateX(-180px) scale(1.2); }
+            100% { transform: translateX(0) scale(1); }
+        }
+
+        .enemy.defeated {
+            animation: enemyDefeated 0.6s ease-out forwards;
+        }
+
+        @keyframes enemyDefeated {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5) rotate(10deg); filter: brightness(3); }
+            100% { opacity: 0; transform: scale(0) rotate(45deg) translateY(-100px); }
+        }
+
+        /* 敵の情報パネル */
+        .enemy-info {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #e63946;
+            border-radius: 10px;
+            padding: 10px 15px;
+            min-width: 200px;
+            text-align: center;
             margin-bottom: 10px;
         }
 
-        .enemy-hp-bar {
+        .enemy.boss .enemy-info {
+            border-color: #ffd60a;
+            box-shadow: 0 0 30px rgba(255, 214, 10, 0.5);
+        }
+
+        .enemy-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 3px;
+        }
+
+        .enemy-name-en {
+            font-size: 10px;
+            color: #4ecdc4;
+            margin-bottom: 8px;
+        }
+
+        .enemy-hp-bar-bg {
             width: 100%;
-            height: 6px;
+            height: 10px;
             background: #333;
-            border-radius: 3px;
+            border-radius: 5px;
             overflow: hidden;
         }
 
-        .enemy-hp {
+        .enemy-hp-bar {
             height: 100%;
             background: linear-gradient(90deg, #e63946 0%, #ff6b6b 100%);
             transition: width 0.3s ease;
         }
 
-        /* タイマーバー */
-        .timer-bar {
-            width: 100%;
-            height: 4px;
-            background: #222;
-            margin-top: 10px;
-            border-radius: 2px;
-            overflow: hidden;
+        .enemy.boss .enemy-hp-bar {
+            background: linear-gradient(90deg, #f39c12 0%, #ffd60a 100%);
         }
 
-        .timer-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #e63946 0%, #ffd60a 50%, #4ecdc4 100%);
-            transition: width 0.1s linear;
-        }
-
-        /* 選択エリア */
-        .selection-area {
-            position: absolute;
-            bottom: 110px;
+        /* ボス登場演出 */
+        .boss-warning {
+            position: fixed;
+            top: 0;
             left: 0;
             right: 0;
-            padding: 10px 15px;
-        }
-
-        .selection-row {
-            margin-bottom: 12px;
-        }
-
-        .selection-label {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 8px;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 10px;
+            z-index: 500;
+            opacity: 0;
+            pointer-events: none;
         }
 
-        .selection-label.debit {
-            color: #4ecdc4;
+        .boss-warning.show {
+            animation: bossWarningAnim 2s ease-out forwards;
         }
 
-        .selection-label.credit {
-            color: #ff6b6b;
+        @keyframes bossWarningAnim {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
         }
 
-        .selected-display {
-            font-size: 12px;
-            padding: 4px 10px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
+        .boss-warning-text {
+            font-size: 48px;
+            font-weight: bold;
+            color: #ffd60a;
+            text-shadow: 0 0 30px #e63946, 0 0 60px #e63946;
+            animation: bossTextPulse 0.3s ease infinite alternate;
+        }
+
+        @keyframes bossTextPulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        /* 入力エリア */
+        .input-area {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            max-width: 500px;
+            z-index: 100;
+        }
+
+        .question-display {
+            text-align: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 8px;
+            border: 1px solid #415a77;
+        }
+
+        .question-text {
+            font-size: 16px;
+            font-weight: bold;
             color: #fff;
         }
 
-        .selected-display.empty {
-            color: #666;
+        .question-text-en {
+            font-size: 11px;
+            color: #4ecdc4;
+        }
+
+        .selection-row {
+            margin-bottom: 8px;
+        }
+
+        .selection-label {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .selection-label.debit { color: #4ecdc4; }
+        .selection-label.credit { color: #ff6b6b; }
+
+        .selected-display {
+            font-size: 11px;
+            padding: 3px 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
         }
 
         .choices {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
+            gap: 6px;
         }
 
         .choice-btn {
-            padding: 12px 8px;
+            padding: 10px 6px;
             background: linear-gradient(135deg, #1a1a2e 0%, #0d1b2a 100%);
             border: 2px solid #415a77;
             border-radius: 8px;
             color: #fff;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
             transition: all 0.15s ease;
             text-align: center;
         }
 
-        .choice-btn:active {
-            transform: scale(0.95);
-        }
-
-        .choice-btn:hover {
-            border-color: #4ecdc4;
-            background: linear-gradient(135deg, #2a2a4e 0%, #1d2b4a 100%);
-        }
-
+        .choice-btn:active { transform: scale(0.95); }
         .choice-btn.selected {
             border-color: #4ecdc4;
             background: rgba(78, 205, 196, 0.3);
-            box-shadow: 0 0 15px rgba(78, 205, 196, 0.3);
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
         }
-
         .choice-btn.correct {
             border-color: #4ecdc4;
             background: rgba(78, 205, 196, 0.5);
-            animation: correctPulse 0.5s ease;
         }
-
         .choice-btn.incorrect {
             border-color: #e63946;
             background: rgba(230, 57, 70, 0.5);
-            animation: shake 0.3s ease;
         }
 
-        @keyframes correctPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        .choice-en { font-size: 10px; color: #4ecdc4; }
+        .choice-jp { font-size: 12px; color: #fff; }
+
+        /* ボタンエリア */
+        .button-row {
+            display: flex;
+            gap: 10px;
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .choice-en {
-            font-size: 11px;
-            color: #4ecdc4;
-            margin-bottom: 2px;
-        }
-
-        .choice-jp {
-            font-size: 13px;
-            color: #fff;
-        }
-
-        /* 攻撃ボタン */
         .attack-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, #e63946 0%, #ff6b6b 100%);
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             color: #fff;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s ease;
             text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-top: 10px;
+            letter-spacing: 2px;
         }
 
         .attack-btn:disabled {
             background: #333;
             color: #666;
-            cursor: not-allowed;
         }
 
-        .attack-btn:not(:disabled):active {
-            transform: scale(0.98);
-        }
-
-        /* エフェクト */
-        .effect {
-            position: fixed;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 48px;
+        .special-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #f39c12 0%, #ffd60a 100%);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-size: 14px;
             font-weight: bold;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: all 0.2s ease;
+        }
+
+        .special-btn.ready {
+            opacity: 1;
+            animation: specialBtnPulse 0.5s ease infinite alternate;
+        }
+
+        @keyframes specialBtnPulse {
+            from { box-shadow: 0 0 10px #ffd60a; }
+            to { box-shadow: 0 0 30px #ffd60a; }
+        }
+
+        /* ヒットエフェクト */
+        .hit-effect {
+            position: fixed;
+            top: 40%;
+            left: 60%;
+            font-size: 72px;
+            font-weight: bold;
+            color: #4ecdc4;
+            text-shadow: 0 0 30px #4ecdc4, 3px 3px 0 #000;
             pointer-events: none;
             opacity: 0;
             z-index: 200;
         }
 
-        .effect.hit {
-            color: #4ecdc4;
-            text-shadow: 0 0 30px #4ecdc4;
+        .hit-effect.show {
+            animation: hitEffectAnim 0.5s ease-out forwards;
         }
 
-        .effect.miss {
+        @keyframes hitEffectAnim {
+            0% { opacity: 1; transform: scale(0.5) rotate(-10deg); }
+            30% { opacity: 1; transform: scale(1.3) rotate(5deg); }
+            100% { opacity: 0; transform: scale(1.5) translateY(-50px) rotate(0deg); }
+        }
+
+        .damage-text {
+            position: fixed;
+            top: 35%;
+            left: 20%;
+            font-size: 48px;
+            font-weight: bold;
             color: #e63946;
-            text-shadow: 0 0 30px #e63946;
+            text-shadow: 0 0 20px #e63946, 2px 2px 0 #000;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 200;
         }
 
-        .effect.show {
-            animation: effectPop 0.6s ease-out forwards;
+        .damage-text.show {
+            animation: damageTextAnim 0.6s ease-out forwards;
         }
 
-        @keyframes effectPop {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
-            30% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5) translateY(-30px); }
+        @keyframes damageTextAnim {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: translateY(-30px); }
+        }
+
+        /* 画面フラッシュ */
+        .screen-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 150;
+            opacity: 0;
+        }
+
+        .screen-flash.hit {
+            background: #4ecdc4;
+            animation: flashAnim 0.1s ease;
+        }
+
+        .screen-flash.damage {
+            background: #e63946;
+            animation: flashAnim 0.15s ease;
+        }
+
+        @keyframes flashAnim {
+            0% { opacity: 0.5; }
+            100% { opacity: 0; }
+        }
+
+        /* 画面シェイク */
+        .game-container.shake {
+            animation: screenShake 0.3s ease;
+        }
+
+        @keyframes screenShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px) rotate(-1deg); }
+            40% { transform: translateX(10px) rotate(1deg); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
         }
 
         /* オーバーレイ */
@@ -420,13 +653,13 @@
         }
 
         .game-title {
-            font-size: 36px;
+            font-size: 42px;
             font-weight: bold;
             background: linear-gradient(135deg, #4ecdc4 0%, #ffd60a 50%, #ff6b6b 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
         }
 
         .game-subtitle {
@@ -448,28 +681,24 @@
         .instructions h3 {
             color: #4ecdc4;
             margin-bottom: 10px;
-            font-size: 14px;
         }
 
         .start-btn {
-            padding: 18px 50px;
+            padding: 18px 60px;
             background: linear-gradient(135deg, #e63946 0%, #ff6b6b 100%);
             border: none;
             border-radius: 12px;
             color: #fff;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 3px;
+            transition: transform 0.2s;
         }
 
-        .start-btn:active {
-            transform: scale(0.95);
-        }
+        .start-btn:active { transform: scale(0.95); }
 
-        /* 結果画面 */
         .result-stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -483,119 +712,74 @@
             border-radius: 8px;
         }
 
-        .result-stat .label {
-            font-size: 11px;
+        .result-stat .label { font-size: 11px; color: #888; }
+        .result-stat .value { font-size: 26px; font-weight: bold; color: #4ecdc4; }
+
+        /* タイマー（敵の接近度） */
+        .approach-indicator {
+            position: absolute;
+            bottom: 190px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .approach-bar-bg {
+            flex: 1;
+            height: 6px;
+            background: #222;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .approach-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4ecdc4 0%, #ffd60a 50%, #e63946 100%);
+            transition: width 0.1s linear;
+        }
+
+        .approach-label {
+            font-size: 10px;
             color: #888;
         }
 
-        .result-stat .value {
-            font-size: 26px;
-            font-weight: bold;
-            color: #4ecdc4;
-        }
-
-        /* プレイヤー */
-        .player-char {
-            position: absolute;
-            bottom: 105px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 40px;
-            z-index: 40;
-            transition: transform 0.2s ease;
-        }
-
-        .player-char.attack {
-            animation: playerAttack 0.3s ease;
-        }
-
-        .player-char.damage {
-            animation: playerDamage 0.3s ease;
-        }
-
-        @keyframes playerAttack {
-            0% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-30px) scale(1.3); }
-            100% { transform: translateX(-50%) translateY(0); }
-        }
-
-        @keyframes playerDamage {
-            0%, 100% { transform: translateX(-50%); filter: none; }
-            25%, 75% { filter: brightness(3) hue-rotate(180deg); }
-        }
-
-        /* レスポンシブ */
         @media (max-height: 700px) {
-            .enemy-title {
-                font-size: 16px;
-            }
-
-            .choice-btn {
-                padding: 10px 6px;
-            }
-
-            .choice-en {
-                font-size: 10px;
-            }
-
-            .choice-jp {
-                font-size: 11px;
-            }
-
-            .selection-area {
-                bottom: 100px;
-            }
-        }
-
-        @media (max-height: 600px) {
-            .combo-display {
-                display: none;
-            }
-
-            .enemy-area {
-                top: 60px;
-            }
-
-            .selection-area {
-                bottom: 90px;
-            }
-
-            .battlefield {
-                height: 80px;
-            }
-
-            .player-char {
-                bottom: 85px;
-                font-size: 32px;
-            }
+            .player, .enemy-sprite { font-size: 48px; }
+            .enemy.boss .enemy-sprite { font-size: 60px; }
+            .choice-btn { padding: 8px 4px; }
+            .choice-en { font-size: 9px; }
+            .choice-jp { font-size: 10px; }
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
+    <div class="game-container" id="gameContainer">
+        <div class="bg-effect"></div>
+
         <!-- スタート画面 -->
         <div class="overlay show" id="startOverlay">
             <div class="overlay-content">
                 <h1 class="game-title">ENTRY STRIKE</h1>
                 <p class="game-subtitle">仕訳格闘ゲーム</p>
-
                 <div class="instructions">
                     <h3>遊び方</h3>
-                    <p>⚔️ 取引内容を見て正しい仕訳を選べ！</p>
-                    <p>📘 借方(Dr)と貸方(Cr)を選択してATTACK</p>
-                    <p>🔥 コンボを繋いでBOSSを倒せ！</p>
-                    <p>⏱️ 時間切れでダメージを受ける</p>
+                    <p>⚔️ 敵が迫ってくる前に正しい仕訳を選べ！</p>
+                    <p>🎯 借方(Dr)と貸方(Cr)を選択してATTACK!</p>
+                    <p>💥 正解で敵を攻撃、不正解で反撃される</p>
+                    <p>🔥 コンボで必殺ゲージが溜まる</p>
+                    <p>👑 5体ごとにボス登場！複数回攻撃で撃破</p>
                 </div>
-
                 <button class="start-btn" onclick="startGame()">FIGHT!</button>
             </div>
         </div>
 
-        <!-- ゲームオーバー画面 -->
+        <!-- ゲームオーバー -->
         <div class="overlay" id="gameOverOverlay">
             <div class="overlay-content">
                 <h1 class="game-title" id="resultTitle">GAME OVER</h1>
-
                 <div class="result-stats">
                     <div class="result-stat">
                         <div class="label">SCORE</div>
@@ -610,862 +794,612 @@
                         <div class="value" id="finalEnemies">0</div>
                     </div>
                     <div class="result-stat">
-                        <div class="label">ACCURACY</div>
-                        <div class="value" id="finalAccuracy">0%</div>
+                        <div class="label">BOSSES</div>
+                        <div class="value" id="finalBosses">0</div>
                     </div>
                 </div>
-
                 <button class="start-btn" onclick="startGame()">RETRY</button>
             </div>
         </div>
 
-        <!-- ゲーム画面 -->
+        <!-- ボス警告 -->
+        <div class="boss-warning" id="bossWarning">
+            <div class="boss-warning-text">⚠️ BOSS APPROACHING ⚠️</div>
+        </div>
+
+        <!-- ゲームUI -->
         <div class="game-header">
             <div class="player-status">
-                <div class="hp-bar-container">
-                    <div class="hp-bar" id="playerHp"></div>
+                <div class="hp-container">
+                    <span class="hp-label">HP</span>
+                    <div class="hp-bar-bg">
+                        <div class="hp-bar" id="playerHpBar"></div>
+                    </div>
                 </div>
-                <span class="hp-text">HP <span id="hpText">100</span></span>
+                <div class="special-container">
+                    <span class="special-label">SP</span>
+                    <div class="special-bar-bg">
+                        <div class="special-bar" id="specialBar"></div>
+                    </div>
+                </div>
             </div>
-
             <div class="stats">
                 <div class="stat-box">
                     <div class="stat-label">Score</div>
                     <div class="stat-value" id="score">0</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-label">Lv</div>
-                    <div class="stat-value" id="level">1</div>
+                    <div class="stat-label">Round</div>
+                    <div class="stat-value" id="round">1</div>
                 </div>
             </div>
         </div>
 
-        <div class="combo-display">
+        <div class="combo-display" id="comboDisplay">
             <div class="combo-count" id="comboCount">0</div>
             <div class="combo-label">COMBO</div>
         </div>
 
-        <!-- 敵表示 -->
-        <div class="enemy-area">
-            <div class="enemy" id="enemy">
-                <div class="enemy-level" id="enemyLevel">Lv.1</div>
-                <div class="enemy-title" id="enemyTitle">備品の購入（現金）</div>
-                <div class="enemy-title-en" id="enemyTitleEn">Purchase equipment with cash</div>
-                <div class="enemy-hp-bar">
-                    <div class="enemy-hp" id="enemyHp"></div>
+        <!-- プレイヤー -->
+        <div class="player" id="player">🥷</div>
+
+        <!-- 敵 -->
+        <div class="enemy" id="enemy">
+            <div class="enemy-info">
+                <div class="enemy-name" id="enemyName">敵</div>
+                <div class="enemy-name-en" id="enemyNameEn">Enemy</div>
+                <div class="enemy-hp-bar-bg">
+                    <div class="enemy-hp-bar" id="enemyHpBar"></div>
                 </div>
-                <div class="timer-bar">
-                    <div class="timer-fill" id="timerFill"></div>
-                </div>
+            </div>
+            <div class="enemy-sprite" id="enemySprite">👹</div>
+        </div>
+
+        <!-- 接近インジケーター -->
+        <div class="approach-indicator">
+            <span class="approach-label">DANGER</span>
+            <div class="approach-bar-bg">
+                <div class="approach-bar" id="approachBar"></div>
             </div>
         </div>
 
-        <!-- プレイヤー -->
-        <div class="player-char" id="player">⚔️</div>
-
-        <!-- 地面 -->
+        <div class="ground"></div>
         <div class="battlefield"></div>
 
-        <!-- 選択エリア -->
-        <div class="selection-area">
-            <div class="selection-row">
+        <!-- 入力エリア -->
+        <div class="input-area">
+            <div class="question-display">
+                <div class="question-text" id="questionText">問題</div>
+                <div class="question-text-en" id="questionTextEn">Question</div>
+            </div>
+
+            <div class="selection-row" id="debitRow">
                 <div class="selection-label debit">
-                    Dr（借方）
-                    <span class="selected-display empty" id="debitDisplay">未選択</span>
+                    Dr（借方）<span class="selected-display" id="debitDisplay">-</span>
                 </div>
                 <div class="choices" id="debitChoices"></div>
             </div>
 
-            <div class="selection-row">
+            <div class="selection-row" id="creditRow">
                 <div class="selection-label credit">
-                    Cr（貸方）
-                    <span class="selected-display empty" id="creditDisplay">未選択</span>
+                    Cr（貸方）<span class="selected-display" id="creditDisplay">-</span>
                 </div>
                 <div class="choices" id="creditChoices"></div>
             </div>
 
-            <button class="attack-btn" id="attackBtn" onclick="submitEntry()" disabled>
-                ATTACK!
-            </button>
+            <div class="button-row">
+                <button class="attack-btn" id="attackBtn" onclick="attack()" disabled>ATTACK!</button>
+                <button class="special-btn" id="specialBtn" onclick="specialAttack()">必殺</button>
+            </div>
         </div>
 
         <!-- エフェクト -->
-        <div class="effect hit" id="hitEffect">HIT!</div>
-        <div class="effect miss" id="missEffect">MISS</div>
+        <div class="hit-effect" id="hitEffect">HIT!</div>
+        <div class="damage-text" id="damageText">DAMAGE!</div>
+        <div class="screen-flash" id="screenFlash"></div>
     </div>
 
     <script>
-        // 勘定科目データ
+        // 勘定科目
         const ACCOUNTS = {
-            // 資産
             cash: { en: 'Cash', jp: '現金' },
-            accountsReceivable: { en: 'Accounts Receivable', jp: '売掛金' },
+            accountsReceivable: { en: 'A/R', jp: '売掛金' },
             inventory: { en: 'Inventory', jp: '棚卸資産' },
             supplies: { en: 'Supplies', jp: '消耗品' },
-            prepaidExpenses: { en: 'Prepaid Expenses', jp: '前払費用' },
+            prepaidExpenses: { en: 'Prepaid Exp.', jp: '前払費用' },
             equipment: { en: 'Equipment', jp: '備品' },
             buildings: { en: 'Buildings', jp: '建物' },
             land: { en: 'Land', jp: '土地' },
-            accumulatedDepreciation: { en: 'Accum. Depreciation', jp: '減価償却累計額' },
-            rightOfUseAsset: { en: 'Right-of-Use Asset', jp: '使用権資産' },
+            accumulatedDepreciation: { en: 'Acc. Depr.', jp: '減価償却累計額' },
+            rightOfUseAsset: { en: 'ROU Asset', jp: '使用権資産' },
             goodwill: { en: 'Goodwill', jp: 'のれん' },
-            investmentInSub: { en: 'Investment in Sub.', jp: '子会社株式' },
-
-            // 負債
-            accountsPayable: { en: 'Accounts Payable', jp: '買掛金' },
-            notesPayable: { en: 'Notes Payable', jp: '支払手形' },
-            unearnedRevenue: { en: 'Unearned Revenue', jp: '前受収益' },
-            accruedExpenses: { en: 'Accrued Expenses', jp: '未払費用' },
-            bondsPayable: { en: 'Bonds Payable', jp: '社債' },
-            leaseLiability: { en: 'Lease Liability', jp: 'リース負債' },
-
-            // 純資産
+            investmentInSub: { en: 'Invest. Sub.', jp: '子会社株式' },
+            accountsPayable: { en: 'A/P', jp: '買掛金' },
+            notesPayable: { en: 'N/P', jp: '支払手形' },
+            unearnedRevenue: { en: 'Unearned Rev.', jp: '前受収益' },
+            accruedExpenses: { en: 'Accrued Exp.', jp: '未払費用' },
+            bondsPayable: { en: 'Bonds Pay.', jp: '社債' },
+            leaseLiability: { en: 'Lease Liab.', jp: 'リース負債' },
             commonStock: { en: 'Common Stock', jp: '資本金' },
-            retainedEarnings: { en: 'Retained Earnings', jp: '利益剰余金' },
-
-            // 収益
+            retainedEarnings: { en: 'Ret. Earnings', jp: '利益剰余金' },
             sales: { en: 'Sales', jp: '売上' },
-            serviceRevenue: { en: 'Service Revenue', jp: '役務収益' },
-            interestIncome: { en: 'Interest Income', jp: '受取利息' },
-
-            // 費用
+            serviceRevenue: { en: 'Service Rev.', jp: '役務収益' },
+            interestIncome: { en: 'Int. Income', jp: '受取利息' },
             costOfGoodsSold: { en: 'COGS', jp: '売上原価' },
-            salariesExpense: { en: 'Salaries Expense', jp: '給与' },
-            rentExpense: { en: 'Rent Expense', jp: '支払家賃' },
-            depreciationExpense: { en: 'Depreciation Exp.', jp: '減価償却費' },
-            suppliesExpense: { en: 'Supplies Expense', jp: '消耗品費' },
-            interestExpense: { en: 'Interest Expense', jp: '支払利息' },
-            utilitiesExpense: { en: 'Utilities Expense', jp: '水道光熱費' }
+            salariesExpense: { en: 'Salaries Exp.', jp: '給与' },
+            rentExpense: { en: 'Rent Exp.', jp: '支払家賃' },
+            depreciationExpense: { en: 'Depr. Exp.', jp: '減価償却費' },
+            suppliesExpense: { en: 'Supplies Exp.', jp: '消耗品費' },
+            interestExpense: { en: 'Int. Exp.', jp: '支払利息' },
+            utilitiesExpense: { en: 'Utilities Exp.', jp: '水道光熱費' }
         };
+
+        // 敵の種類
+        const ENEMY_SPRITES = ['👹', '👺', '👻', '💀', '👾', '🤖', '👿', '🦹'];
+        const BOSS_SPRITES = ['🐉', '👑', '⚔️', '🔥'];
 
         // 取引データ
         const TRANSACTIONS = {
-            easy: [
-                {
-                    id: 'e1',
-                    title: '備品の購入（現金）',
-                    titleEn: 'Purchase equipment with cash',
-                    debit: 'equipment',
-                    credit: 'cash',
-                    debitPool: ['equipment', 'supplies', 'inventory', 'buildings'],
-                    creditPool: ['cash', 'accountsPayable', 'notesPayable', 'accruedExpenses']
-                },
-                {
-                    id: 'e2',
-                    title: '売掛金の回収',
-                    titleEn: 'Collection of receivables',
-                    debit: 'cash',
-                    credit: 'accountsReceivable',
-                    debitPool: ['cash', 'inventory', 'supplies', 'equipment'],
-                    creditPool: ['accountsReceivable', 'sales', 'unearnedRevenue', 'accountsPayable']
-                },
-                {
-                    id: 'e3',
-                    title: '消耗品の購入（現金）',
-                    titleEn: 'Purchase supplies with cash',
-                    debit: 'supplies',
-                    credit: 'cash',
-                    debitPool: ['supplies', 'inventory', 'equipment', 'prepaidExpenses'],
-                    creditPool: ['cash', 'accountsPayable', 'notesPayable', 'accruedExpenses']
-                },
-                {
-                    id: 'e4',
-                    title: '買掛金の支払い',
-                    titleEn: 'Payment of accounts payable',
-                    debit: 'accountsPayable',
-                    credit: 'cash',
-                    debitPool: ['accountsPayable', 'notesPayable', 'accruedExpenses', 'unearnedRevenue'],
-                    creditPool: ['cash', 'accountsReceivable', 'inventory', 'supplies']
-                },
-                {
-                    id: 'e5',
-                    title: '現金売上',
-                    titleEn: 'Cash sales',
-                    debit: 'cash',
-                    credit: 'sales',
-                    debitPool: ['cash', 'accountsReceivable', 'inventory', 'supplies'],
-                    creditPool: ['sales', 'serviceRevenue', 'unearnedRevenue', 'interestIncome']
-                },
-                {
-                    id: 'e6',
-                    title: '商品の仕入（現金）',
-                    titleEn: 'Purchase inventory with cash',
-                    debit: 'inventory',
-                    credit: 'cash',
-                    debitPool: ['inventory', 'supplies', 'equipment', 'prepaidExpenses'],
-                    creditPool: ['cash', 'accountsPayable', 'notesPayable', 'unearnedRevenue']
-                },
-                {
-                    id: 'e7',
-                    title: '商品の仕入（掛け）',
-                    titleEn: 'Purchase inventory on account',
-                    debit: 'inventory',
-                    credit: 'accountsPayable',
-                    debitPool: ['inventory', 'supplies', 'equipment', 'buildings'],
-                    creditPool: ['accountsPayable', 'cash', 'notesPayable', 'accruedExpenses']
-                },
-                {
-                    id: 'e8',
-                    title: '建物の購入（現金）',
-                    titleEn: 'Purchase building with cash',
-                    debit: 'buildings',
-                    credit: 'cash',
-                    debitPool: ['buildings', 'equipment', 'land', 'inventory'],
-                    creditPool: ['cash', 'notesPayable', 'bondsPayable', 'accountsPayable']
-                },
-                {
-                    id: 'e9',
-                    title: '土地の購入（現金）',
-                    titleEn: 'Purchase land with cash',
-                    debit: 'land',
-                    credit: 'cash',
-                    debitPool: ['land', 'buildings', 'equipment', 'inventory'],
-                    creditPool: ['cash', 'notesPayable', 'bondsPayable', 'accountsPayable']
-                },
-                {
-                    id: 'e10',
-                    title: '支払手形の決済',
-                    titleEn: 'Payment of notes payable',
-                    debit: 'notesPayable',
-                    credit: 'cash',
-                    debitPool: ['notesPayable', 'accountsPayable', 'accruedExpenses', 'bondsPayable'],
-                    creditPool: ['cash', 'accountsReceivable', 'inventory', 'equipment']
-                },
-                {
-                    id: 'e11',
-                    title: 'サービス収益（現金）',
-                    titleEn: 'Service revenue (cash)',
-                    debit: 'cash',
-                    credit: 'serviceRevenue',
-                    debitPool: ['cash', 'accountsReceivable', 'supplies', 'inventory'],
-                    creditPool: ['serviceRevenue', 'sales', 'interestIncome', 'unearnedRevenue']
-                },
-                {
-                    id: 'e12',
-                    title: '前受金の受取',
-                    titleEn: 'Receive advance payment',
-                    debit: 'cash',
-                    credit: 'unearnedRevenue',
-                    debitPool: ['cash', 'accountsReceivable', 'inventory', 'supplies'],
-                    creditPool: ['unearnedRevenue', 'sales', 'serviceRevenue', 'accountsPayable']
-                }
-            ],
-            medium: [
-                {
-                    id: 'm1',
-                    title: '減価償却の計上',
-                    titleEn: 'Record depreciation expense',
-                    debit: 'depreciationExpense',
-                    credit: 'accumulatedDepreciation',
-                    debitPool: ['depreciationExpense', 'suppliesExpense', 'rentExpense', 'salariesExpense'],
-                    creditPool: ['accumulatedDepreciation', 'cash', 'accountsPayable', 'equipment']
-                },
-                {
-                    id: 'm2',
-                    title: '掛け売上',
-                    titleEn: 'Sales on account',
-                    debit: 'accountsReceivable',
-                    credit: 'sales',
-                    debitPool: ['accountsReceivable', 'cash', 'inventory', 'supplies'],
-                    creditPool: ['sales', 'serviceRevenue', 'unearnedRevenue', 'accountsPayable']
-                },
-                {
-                    id: 'm3',
-                    title: '給与の支払い',
-                    titleEn: 'Payment of salaries',
-                    debit: 'salariesExpense',
-                    credit: 'cash',
-                    debitPool: ['salariesExpense', 'rentExpense', 'utilitiesExpense', 'suppliesExpense'],
-                    creditPool: ['cash', 'accruedExpenses', 'accountsPayable', 'notesPayable']
-                },
-                {
-                    id: 'm4',
-                    title: '前払費用の計上',
-                    titleEn: 'Record prepaid expenses',
-                    debit: 'prepaidExpenses',
-                    credit: 'cash',
-                    debitPool: ['prepaidExpenses', 'supplies', 'inventory', 'equipment'],
-                    creditPool: ['cash', 'accountsPayable', 'accruedExpenses', 'notesPayable']
-                },
-                {
-                    id: 'm5',
-                    title: '未払費用の計上',
-                    titleEn: 'Accrued expenses',
-                    debit: 'utilitiesExpense',
-                    credit: 'accruedExpenses',
-                    debitPool: ['utilitiesExpense', 'salariesExpense', 'rentExpense', 'interestExpense'],
-                    creditPool: ['accruedExpenses', 'cash', 'accountsPayable', 'notesPayable']
-                },
-                {
-                    id: 'm6',
-                    title: '消耗品の費用化',
-                    titleEn: 'Supplies used',
-                    debit: 'suppliesExpense',
-                    credit: 'supplies',
-                    debitPool: ['suppliesExpense', 'depreciationExpense', 'utilitiesExpense', 'rentExpense'],
-                    creditPool: ['supplies', 'cash', 'inventory', 'prepaidExpenses']
-                },
-                {
-                    id: 'm7',
-                    title: '家賃の支払い',
-                    titleEn: 'Payment of rent',
-                    debit: 'rentExpense',
-                    credit: 'cash',
-                    debitPool: ['rentExpense', 'salariesExpense', 'utilitiesExpense', 'interestExpense'],
-                    creditPool: ['cash', 'accountsPayable', 'accruedExpenses', 'prepaidExpenses']
-                },
-                {
-                    id: 'm8',
-                    title: '売上原価の計上',
-                    titleEn: 'Record cost of goods sold',
-                    debit: 'costOfGoodsSold',
-                    credit: 'inventory',
-                    debitPool: ['costOfGoodsSold', 'suppliesExpense', 'depreciationExpense', 'salariesExpense'],
-                    creditPool: ['inventory', 'supplies', 'cash', 'accountsPayable']
-                },
-                {
-                    id: 'm9',
-                    title: '受取利息の計上',
-                    titleEn: 'Record interest income',
-                    debit: 'cash',
-                    credit: 'interestIncome',
-                    debitPool: ['cash', 'accountsReceivable', 'inventory', 'prepaidExpenses'],
-                    creditPool: ['interestIncome', 'sales', 'serviceRevenue', 'unearnedRevenue']
-                },
-                {
-                    id: 'm10',
-                    title: '前払費用の費用化',
-                    titleEn: 'Recognize prepaid as expense',
-                    debit: 'rentExpense',
-                    credit: 'prepaidExpenses',
-                    debitPool: ['rentExpense', 'suppliesExpense', 'utilitiesExpense', 'salariesExpense'],
-                    creditPool: ['prepaidExpenses', 'cash', 'supplies', 'inventory']
-                },
-                {
-                    id: 'm11',
-                    title: '未払給与の計上',
-                    titleEn: 'Accrue salaries payable',
-                    debit: 'salariesExpense',
-                    credit: 'accruedExpenses',
-                    debitPool: ['salariesExpense', 'rentExpense', 'utilitiesExpense', 'interestExpense'],
-                    creditPool: ['accruedExpenses', 'cash', 'accountsPayable', 'notesPayable']
-                },
-                {
-                    id: 'm12',
-                    title: '掛けサービス収益',
-                    titleEn: 'Service revenue on account',
-                    debit: 'accountsReceivable',
-                    credit: 'serviceRevenue',
-                    debitPool: ['accountsReceivable', 'cash', 'supplies', 'inventory'],
-                    creditPool: ['serviceRevenue', 'sales', 'unearnedRevenue', 'interestIncome']
-                }
-            ],
-            hard: [
-                {
-                    id: 'h1',
-                    title: '社債の発行（額面）',
-                    titleEn: 'Issue bonds at par',
-                    debit: 'cash',
-                    credit: 'bondsPayable',
-                    debitPool: ['cash', 'accountsReceivable', 'equipment', 'buildings'],
-                    creditPool: ['bondsPayable', 'commonStock', 'notesPayable', 'leaseLiability']
-                },
-                {
-                    id: 'h2',
-                    title: '前受収益の収益化',
-                    titleEn: 'Recognize earned revenue',
-                    debit: 'unearnedRevenue',
-                    credit: 'serviceRevenue',
-                    debitPool: ['unearnedRevenue', 'accountsPayable', 'accruedExpenses', 'notesPayable'],
-                    creditPool: ['serviceRevenue', 'sales', 'interestIncome', 'cash']
-                },
-                {
-                    id: 'h3',
-                    title: '支払利息の未払計上',
-                    titleEn: 'Accrue interest expense',
-                    debit: 'interestExpense',
-                    credit: 'accruedExpenses',
-                    debitPool: ['interestExpense', 'rentExpense', 'salariesExpense', 'depreciationExpense'],
-                    creditPool: ['accruedExpenses', 'cash', 'bondsPayable', 'notesPayable']
-                },
-                {
-                    id: 'h4',
-                    title: '株式の発行',
-                    titleEn: 'Issue common stock',
-                    debit: 'cash',
-                    credit: 'commonStock',
-                    debitPool: ['cash', 'equipment', 'buildings', 'land'],
-                    creditPool: ['commonStock', 'bondsPayable', 'retainedEarnings', 'accountsPayable']
-                },
-                {
-                    id: 'h5',
-                    title: '社債利息の支払い',
-                    titleEn: 'Pay bond interest',
-                    debit: 'interestExpense',
-                    credit: 'cash',
-                    debitPool: ['interestExpense', 'rentExpense', 'salariesExpense', 'depreciationExpense'],
-                    creditPool: ['cash', 'accruedExpenses', 'bondsPayable', 'accountsPayable']
-                },
-                {
-                    id: 'h6',
-                    title: '配当金の支払い',
-                    titleEn: 'Pay dividends',
-                    debit: 'retainedEarnings',
-                    credit: 'cash',
-                    debitPool: ['retainedEarnings', 'commonStock', 'interestExpense', 'salariesExpense'],
-                    creditPool: ['cash', 'accountsPayable', 'bondsPayable', 'accruedExpenses']
-                },
-                {
-                    id: 'h7',
-                    title: '未払利息の支払い',
-                    titleEn: 'Pay accrued interest',
-                    debit: 'accruedExpenses',
-                    credit: 'cash',
-                    debitPool: ['accruedExpenses', 'interestExpense', 'accountsPayable', 'notesPayable'],
-                    creditPool: ['cash', 'bondsPayable', 'accountsReceivable', 'inventory']
-                },
-                {
-                    id: 'h8',
-                    title: '長期借入金の返済',
-                    titleEn: 'Repay long-term debt',
-                    debit: 'bondsPayable',
-                    credit: 'cash',
-                    debitPool: ['bondsPayable', 'notesPayable', 'leaseLiability', 'accountsPayable'],
-                    creditPool: ['cash', 'accountsReceivable', 'equipment', 'inventory']
-                }
+            normal: [
+                { id: 'n1', title: '備品の購入（現金）', titleEn: 'Purchase equipment', debit: 'equipment', credit: 'cash', debitPool: ['equipment', 'supplies', 'inventory', 'buildings'], creditPool: ['cash', 'accountsPayable', 'notesPayable', 'accruedExpenses'] },
+                { id: 'n2', title: '売掛金の回収', titleEn: 'Collect receivables', debit: 'cash', credit: 'accountsReceivable', debitPool: ['cash', 'inventory', 'supplies', 'equipment'], creditPool: ['accountsReceivable', 'sales', 'unearnedRevenue', 'accountsPayable'] },
+                { id: 'n3', title: '消耗品の購入', titleEn: 'Purchase supplies', debit: 'supplies', credit: 'cash', debitPool: ['supplies', 'inventory', 'equipment', 'prepaidExpenses'], creditPool: ['cash', 'accountsPayable', 'notesPayable', 'accruedExpenses'] },
+                { id: 'n4', title: '買掛金の支払い', titleEn: 'Pay accounts payable', debit: 'accountsPayable', credit: 'cash', debitPool: ['accountsPayable', 'notesPayable', 'accruedExpenses', 'unearnedRevenue'], creditPool: ['cash', 'accountsReceivable', 'inventory', 'supplies'] },
+                { id: 'n5', title: '現金売上', titleEn: 'Cash sales', debit: 'cash', credit: 'sales', debitPool: ['cash', 'accountsReceivable', 'inventory', 'supplies'], creditPool: ['sales', 'serviceRevenue', 'unearnedRevenue', 'interestIncome'] },
+                { id: 'n6', title: '商品の仕入（現金）', titleEn: 'Purchase inventory', debit: 'inventory', credit: 'cash', debitPool: ['inventory', 'supplies', 'equipment', 'prepaidExpenses'], creditPool: ['cash', 'accountsPayable', 'notesPayable', 'unearnedRevenue'] },
+                { id: 'n7', title: '商品の仕入（掛け）', titleEn: 'Purchase on account', debit: 'inventory', credit: 'accountsPayable', debitPool: ['inventory', 'supplies', 'equipment', 'buildings'], creditPool: ['accountsPayable', 'cash', 'notesPayable', 'accruedExpenses'] },
+                { id: 'n8', title: '減価償却の計上', titleEn: 'Record depreciation', debit: 'depreciationExpense', credit: 'accumulatedDepreciation', debitPool: ['depreciationExpense', 'suppliesExpense', 'rentExpense', 'salariesExpense'], creditPool: ['accumulatedDepreciation', 'cash', 'accountsPayable', 'equipment'] },
+                { id: 'n9', title: '掛け売上', titleEn: 'Sales on account', debit: 'accountsReceivable', credit: 'sales', debitPool: ['accountsReceivable', 'cash', 'inventory', 'supplies'], creditPool: ['sales', 'serviceRevenue', 'unearnedRevenue', 'accountsPayable'] },
+                { id: 'n10', title: '給与の支払い', titleEn: 'Pay salaries', debit: 'salariesExpense', credit: 'cash', debitPool: ['salariesExpense', 'rentExpense', 'utilitiesExpense', 'suppliesExpense'], creditPool: ['cash', 'accruedExpenses', 'accountsPayable', 'notesPayable'] },
+                { id: 'n11', title: '前払費用の計上', titleEn: 'Record prepaid', debit: 'prepaidExpenses', credit: 'cash', debitPool: ['prepaidExpenses', 'supplies', 'inventory', 'equipment'], creditPool: ['cash', 'accountsPayable', 'accruedExpenses', 'notesPayable'] },
+                { id: 'n12', title: '消耗品の費用化', titleEn: 'Supplies used', debit: 'suppliesExpense', credit: 'supplies', debitPool: ['suppliesExpense', 'depreciationExpense', 'utilitiesExpense', 'rentExpense'], creditPool: ['supplies', 'cash', 'inventory', 'prepaidExpenses'] },
+                { id: 'n13', title: '家賃の支払い', titleEn: 'Pay rent', debit: 'rentExpense', credit: 'cash', debitPool: ['rentExpense', 'salariesExpense', 'utilitiesExpense', 'interestExpense'], creditPool: ['cash', 'accountsPayable', 'accruedExpenses', 'prepaidExpenses'] },
+                { id: 'n14', title: '売上原価の計上', titleEn: 'Record COGS', debit: 'costOfGoodsSold', credit: 'inventory', debitPool: ['costOfGoodsSold', 'suppliesExpense', 'depreciationExpense', 'salariesExpense'], creditPool: ['inventory', 'supplies', 'cash', 'accountsPayable'] },
+                { id: 'n15', title: '前受収益の収益化', titleEn: 'Earn revenue', debit: 'unearnedRevenue', credit: 'serviceRevenue', debitPool: ['unearnedRevenue', 'accountsPayable', 'accruedExpenses', 'notesPayable'], creditPool: ['serviceRevenue', 'sales', 'interestIncome', 'cash'] },
+                { id: 'n16', title: '社債の発行', titleEn: 'Issue bonds', debit: 'cash', credit: 'bondsPayable', debitPool: ['cash', 'accountsReceivable', 'equipment', 'buildings'], creditPool: ['bondsPayable', 'commonStock', 'notesPayable', 'leaseLiability'] },
+                { id: 'n17', title: '株式の発行', titleEn: 'Issue stock', debit: 'cash', credit: 'commonStock', debitPool: ['cash', 'equipment', 'buildings', 'land'], creditPool: ['commonStock', 'bondsPayable', 'retainedEarnings', 'accountsPayable'] },
+                { id: 'n18', title: '支払利息の計上', titleEn: 'Accrue interest', debit: 'interestExpense', credit: 'accruedExpenses', debitPool: ['interestExpense', 'rentExpense', 'salariesExpense', 'depreciationExpense'], creditPool: ['accruedExpenses', 'cash', 'bondsPayable', 'notesPayable'] }
             ],
             boss: [
-                {
-                    id: 'b1',
-                    title: '【BOSS】リース資産の計上',
-                    titleEn: 'Recognize lease (IFRS16)',
-                    debit: 'rightOfUseAsset',
-                    credit: 'leaseLiability',
-                    debitPool: ['rightOfUseAsset', 'equipment', 'buildings', 'goodwill'],
-                    creditPool: ['leaseLiability', 'bondsPayable', 'cash', 'accountsPayable'],
-                    isBoss: true
-                },
-                {
-                    id: 'b2',
-                    title: '【BOSS】のれんの計上',
-                    titleEn: 'Record goodwill from acquisition',
-                    debit: 'goodwill',
-                    credit: 'cash',
-                    debitPool: ['goodwill', 'rightOfUseAsset', 'investmentInSub', 'buildings'],
-                    creditPool: ['cash', 'bondsPayable', 'commonStock', 'accountsPayable'],
-                    isBoss: true
-                },
-                {
-                    id: 'b3',
-                    title: '【BOSS】連結消去：投資と資本',
-                    titleEn: 'Eliminate investment vs equity',
-                    debit: 'commonStock',
-                    credit: 'investmentInSub',
-                    debitPool: ['commonStock', 'retainedEarnings', 'goodwill', 'rightOfUseAsset'],
-                    creditPool: ['investmentInSub', 'cash', 'bondsPayable', 'leaseLiability'],
-                    isBoss: true
-                },
-                {
-                    id: 'b4',
-                    title: '【BOSS】リース負債の返済',
-                    titleEn: 'Lease payment (IFRS16)',
-                    debit: 'leaseLiability',
-                    credit: 'cash',
-                    debitPool: ['leaseLiability', 'bondsPayable', 'rightOfUseAsset', 'interestExpense'],
-                    creditPool: ['cash', 'accountsPayable', 'accruedExpenses', 'notesPayable'],
-                    isBoss: true
-                },
-                {
-                    id: 'b5',
-                    title: '【BOSS】子会社への投資',
-                    titleEn: 'Investment in subsidiary',
-                    debit: 'investmentInSub',
-                    credit: 'cash',
-                    debitPool: ['investmentInSub', 'goodwill', 'equipment', 'buildings'],
-                    creditPool: ['cash', 'commonStock', 'bondsPayable', 'accountsPayable'],
-                    isBoss: true
-                },
-                {
-                    id: 'b6',
-                    title: '【BOSS】使用権資産の償却',
-                    titleEn: 'Amortize right-of-use asset',
-                    debit: 'depreciationExpense',
-                    credit: 'rightOfUseAsset',
-                    debitPool: ['depreciationExpense', 'interestExpense', 'rentExpense', 'suppliesExpense'],
-                    creditPool: ['rightOfUseAsset', 'accumulatedDepreciation', 'leaseLiability', 'cash'],
-                    isBoss: true
-                }
+                { id: 'b1', title: 'リース資産の計上', titleEn: 'Recognize lease (IFRS16)', debit: 'rightOfUseAsset', credit: 'leaseLiability', debitPool: ['rightOfUseAsset', 'equipment', 'buildings', 'goodwill'], creditPool: ['leaseLiability', 'bondsPayable', 'cash', 'accountsPayable'] },
+                { id: 'b2', title: 'のれんの計上', titleEn: 'Record goodwill', debit: 'goodwill', credit: 'cash', debitPool: ['goodwill', 'rightOfUseAsset', 'investmentInSub', 'buildings'], creditPool: ['cash', 'bondsPayable', 'commonStock', 'accountsPayable'] },
+                { id: 'b3', title: '連結消去：投資と資本', titleEn: 'Eliminate investment', debit: 'commonStock', credit: 'investmentInSub', debitPool: ['commonStock', 'retainedEarnings', 'goodwill', 'rightOfUseAsset'], creditPool: ['investmentInSub', 'cash', 'bondsPayable', 'leaseLiability'] },
+                { id: 'b4', title: 'リース負債の返済', titleEn: 'Lease payment', debit: 'leaseLiability', credit: 'cash', debitPool: ['leaseLiability', 'bondsPayable', 'rightOfUseAsset', 'interestExpense'], creditPool: ['cash', 'accountsPayable', 'accruedExpenses', 'notesPayable'] },
+                { id: 'b5', title: '子会社への投資', titleEn: 'Invest in subsidiary', debit: 'investmentInSub', credit: 'cash', debitPool: ['investmentInSub', 'goodwill', 'equipment', 'buildings'], creditPool: ['cash', 'commonStock', 'bondsPayable', 'accountsPayable'] }
             ]
         };
 
-        // 最近出題された問題を追跡（連続出題防止用）
-        let recentQuestions = [];
-
         // ゲーム状態
-        let gameState = {
+        let game = {
             hp: 100,
+            maxHp: 100,
             score: 0,
-            level: 1,
+            round: 1,
             combo: 0,
             maxCombo: 0,
+            specialGauge: 0,
             enemiesDefeated: 0,
-            totalAttempts: 0,
-            correctAttempts: 0,
+            bossesDefeated: 0,
+            isRunning: false,
+            isBoss: false,
+            enemyHp: 1,
+            enemyMaxHp: 1,
             currentTransaction: null,
             selectedDebit: null,
             selectedCredit: null,
-            timeLeft: 100,
-            maxTime: 100,
-            timerInterval: null,
-            isRunning: false
+            approachTimer: null,
+            approachValue: 0,
+            recentQuestions: []
         };
 
         // DOM要素
-        const elements = {
-            playerHp: document.getElementById('playerHp'),
-            hpText: document.getElementById('hpText'),
-            score: document.getElementById('score'),
-            level: document.getElementById('level'),
-            comboCount: document.getElementById('comboCount'),
-            enemy: document.getElementById('enemy'),
-            enemyLevel: document.getElementById('enemyLevel'),
-            enemyTitle: document.getElementById('enemyTitle'),
-            enemyTitleEn: document.getElementById('enemyTitleEn'),
-            enemyHp: document.getElementById('enemyHp'),
-            timerFill: document.getElementById('timerFill'),
-            debitChoices: document.getElementById('debitChoices'),
-            creditChoices: document.getElementById('creditChoices'),
-            debitDisplay: document.getElementById('debitDisplay'),
-            creditDisplay: document.getElementById('creditDisplay'),
-            attackBtn: document.getElementById('attackBtn'),
-            player: document.getElementById('player'),
-            hitEffect: document.getElementById('hitEffect'),
-            missEffect: document.getElementById('missEffect'),
-            startOverlay: document.getElementById('startOverlay'),
-            gameOverOverlay: document.getElementById('gameOverOverlay')
-        };
+        const $ = id => document.getElementById(id);
 
-        // 配列をシャッフル
-        function shuffle(array) {
-            const arr = [...array];
-            for (let i = arr.length - 1; i > 0; i--) {
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
+                [a[i], a[j]] = [a[j], a[i]];
             }
-            return arr;
+            return a;
         }
 
-        // 選択肢ボタンを生成
-        function createChoiceButton(accountKey, type) {
-            const account = ACCOUNTS[accountKey];
+        function updateUI() {
+            $('playerHpBar').style.width = (game.hp / game.maxHp * 100) + '%';
+            $('specialBar').style.width = Math.min(100, game.specialGauge) + '%';
+            $('specialBar').classList.toggle('ready', game.specialGauge >= 100);
+            $('specialBtn').classList.toggle('ready', game.specialGauge >= 100);
+            $('score').textContent = game.score;
+            $('round').textContent = game.round;
+            $('enemyHpBar').style.width = (game.enemyHp / game.enemyMaxHp * 100) + '%';
+
+            $('comboDisplay').classList.toggle('active', game.combo > 0);
+            $('comboCount').textContent = game.combo;
+
+            $('attackBtn').disabled = !(game.selectedDebit && game.selectedCredit);
+        }
+
+        function spawnEnemy() {
+            // ボス判定: 5体ごと
+            game.isBoss = game.enemiesDefeated > 0 && game.enemiesDefeated % 5 === 0;
+
+            if (game.isBoss) {
+                showBossWarning();
+                return;
+            }
+
+            setupEnemy();
+        }
+
+        function showBossWarning() {
+            $('bossWarning').classList.add('show');
+            setTimeout(() => {
+                $('bossWarning').classList.remove('show');
+                setupEnemy();
+            }, 2000);
+        }
+
+        function setupEnemy() {
+            const pool = game.isBoss ? TRANSACTIONS.boss : TRANSACTIONS.normal;
+            let available = pool.filter(t => !game.recentQuestions.includes(t.id));
+            if (available.length === 0) {
+                game.recentQuestions = [];
+                available = pool;
+            }
+
+            const transaction = available[Math.floor(Math.random() * available.length)];
+            game.currentTransaction = transaction;
+            game.recentQuestions.push(transaction.id);
+            if (game.recentQuestions.length > 5) game.recentQuestions.shift();
+
+            // 敵の見た目
+            const enemy = $('enemy');
+            enemy.classList.remove('defeated', 'hit', 'attacking');
+            enemy.classList.toggle('boss', game.isBoss);
+            enemy.style.right = '10%';
+
+            const sprite = game.isBoss
+                ? BOSS_SPRITES[Math.floor(Math.random() * BOSS_SPRITES.length)]
+                : ENEMY_SPRITES[Math.floor(Math.random() * ENEMY_SPRITES.length)];
+            $('enemySprite').textContent = sprite;
+
+            // 敵HP（ボスも通常敵も1回正解で撃破）
+            game.enemyMaxHp = 1;
+            game.enemyHp = 1;
+
+            // 問題表示
+            const prefix = game.isBoss ? '【BOSS】' : '';
+            $('enemyName').textContent = prefix + transaction.title;
+            $('enemyNameEn').textContent = transaction.titleEn;
+
+            if (game.isBoss) {
+                // ボス戦：問題と選択肢を表示、必殺技のみで倒す
+                $('questionText').textContent = '【BOSS】' + transaction.title;
+                $('questionTextEn').textContent = transaction.titleEn;
+                $('debitRow').style.display = 'block';
+                $('creditRow').style.display = 'block';
+                $('attackBtn').style.display = 'none';
+
+                // 選択肢を生成
+                game.selectedDebit = null;
+                game.selectedCredit = null;
+                $('debitDisplay').textContent = '-';
+                $('creditDisplay').textContent = '-';
+
+                const debitChoices = shuffle(transaction.debitPool);
+                const creditChoices = shuffle(transaction.creditPool);
+
+                $('debitChoices').innerHTML = '';
+                $('creditChoices').innerHTML = '';
+
+                debitChoices.forEach(key => {
+                    const btn = createChoiceBtn(key, 'debit');
+                    $('debitChoices').appendChild(btn);
+                });
+
+                creditChoices.forEach(key => {
+                    const btn = createChoiceBtn(key, 'credit');
+                    $('creditChoices').appendChild(btn);
+                });
+
+                // 必殺ゲージを100%に
+                game.specialGauge = 100;
+                // 接近タイマー開始（通常敵と同じ）
+                game.approachValue = 0;
+                startApproachTimer();
+            } else {
+                // 通常敵：選択肢を表示
+                $('questionText').textContent = transaction.title;
+                $('questionTextEn').textContent = transaction.titleEn;
+                $('debitRow').style.display = 'block';
+                $('creditRow').style.display = 'block';
+                $('attackBtn').style.display = 'block';
+
+                game.selectedDebit = null;
+                game.selectedCredit = null;
+                $('debitDisplay').textContent = '-';
+                $('creditDisplay').textContent = '-';
+
+                const debitChoices = shuffle(transaction.debitPool);
+                const creditChoices = shuffle(transaction.creditPool);
+
+                $('debitChoices').innerHTML = '';
+                $('creditChoices').innerHTML = '';
+
+                debitChoices.forEach(key => {
+                    const btn = createChoiceBtn(key, 'debit');
+                    $('debitChoices').appendChild(btn);
+                });
+
+                creditChoices.forEach(key => {
+                    const btn = createChoiceBtn(key, 'credit');
+                    $('creditChoices').appendChild(btn);
+                });
+
+                // 接近タイマー開始
+                game.approachValue = 0;
+                startApproachTimer();
+            }
+
+            updateUI();
+        }
+
+        function createChoiceBtn(key, type) {
+            const acc = ACCOUNTS[key];
             const btn = document.createElement('button');
             btn.className = 'choice-btn';
-            btn.innerHTML = `
-                <div class="choice-en">${account.en}</div>
-                <div class="choice-jp">${account.jp}</div>
-            `;
-            btn.dataset.account = accountKey;
-            btn.onclick = () => selectChoice(accountKey, type);
+            btn.innerHTML = `<div class="choice-en">${acc.en}</div><div class="choice-jp">${acc.jp}</div>`;
+            btn.onclick = () => selectChoice(key, type);
+            btn.dataset.key = key;
             return btn;
         }
 
-        // 選択肢を選択
-        function selectChoice(accountKey, type) {
-            if (!gameState.isRunning) return;
+        function selectChoice(key, type) {
+            if (!game.isRunning) return;
 
-            const account = ACCOUNTS[accountKey];
-            const container = type === 'debit' ? elements.debitChoices : elements.creditChoices;
-            const display = type === 'debit' ? elements.debitDisplay : elements.creditDisplay;
+            const container = type === 'debit' ? $('debitChoices') : $('creditChoices');
+            container.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+            container.querySelector(`[data-key="${key}"]`).classList.add('selected');
 
-            // 前の選択をクリア
-            container.querySelectorAll('.choice-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-
-            // 新しい選択をマーク
-            const selectedBtn = container.querySelector(`[data-account="${accountKey}"]`);
-            if (selectedBtn) {
-                selectedBtn.classList.add('selected');
-            }
-
-            // 状態を更新
             if (type === 'debit') {
-                gameState.selectedDebit = accountKey;
+                game.selectedDebit = key;
+                $('debitDisplay').textContent = ACCOUNTS[key].jp;
             } else {
-                gameState.selectedCredit = accountKey;
+                game.selectedCredit = key;
+                $('creditDisplay').textContent = ACCOUNTS[key].jp;
             }
 
-            // 表示を更新
-            display.textContent = account.jp;
-            display.classList.remove('empty');
-
-            // 攻撃ボタンの有効化チェック
-            updateAttackButton();
+            updateUI();
         }
 
-        // 攻撃ボタンの状態更新
-        function updateAttackButton() {
-            const canAttack = gameState.selectedDebit && gameState.selectedCredit;
-            elements.attackBtn.disabled = !canAttack;
-        }
+        function startApproachTimer() {
+            clearInterval(game.approachTimer);
+            const maxTime = 100;
 
-        // 取引を生成
-        function spawnTransaction() {
-            let pool;
+            game.approachTimer = setInterval(() => {
+                game.approachValue += 1;
+                const percent = (game.approachValue / maxTime) * 100;
+                $('approachBar').style.width = percent + '%';
 
-            if (gameState.combo >= 10 || gameState.level >= 5) {
-                pool = [...TRANSACTIONS.hard, ...TRANSACTIONS.boss];
-            } else if (gameState.combo >= 5 || gameState.level >= 3) {
-                pool = [...TRANSACTIONS.medium, ...TRANSACTIONS.hard];
-            } else if (gameState.level >= 2) {
-                pool = [...TRANSACTIONS.easy, ...TRANSACTIONS.medium];
-            } else {
-                pool = TRANSACTIONS.easy;
-            }
+                // 敵が接近
+                const approachPercent = Math.min(game.approachValue / maxTime, 1);
+                $('enemy').style.right = (10 + approachPercent * 30) + '%';
 
-            // 最近出題された問題を除外
-            let availablePool = pool.filter(t => !recentQuestions.includes(t.id));
-
-            // 全部除外されてしまったら履歴をリセット
-            if (availablePool.length === 0) {
-                recentQuestions = [];
-                availablePool = pool;
-            }
-
-            const transaction = availablePool[Math.floor(Math.random() * availablePool.length)];
-
-            // 履歴に追加（最大5問まで記録）
-            recentQuestions.push(transaction.id);
-            if (recentQuestions.length > 5) {
-                recentQuestions.shift();
-            }
-            gameState.currentTransaction = transaction;
-            gameState.selectedDebit = null;
-            gameState.selectedCredit = null;
-
-            // 敵の表示を更新
-            elements.enemyLevel.textContent = `Lv.${gameState.level}`;
-            elements.enemyTitle.textContent = transaction.title;
-            elements.enemyTitleEn.textContent = transaction.titleEn;
-            elements.enemyHp.style.width = '100%';
-
-            if (transaction.isBoss) {
-                elements.enemy.classList.add('boss');
-                gameState.maxTime = 120;
-            } else {
-                elements.enemy.classList.remove('boss');
-                gameState.maxTime = Math.max(50, 100 - gameState.level * 8);
-            }
-
-            gameState.timeLeft = gameState.maxTime;
-            elements.timerFill.style.width = '100%';
-
-            // 選択肢を生成（正解を含めてシャッフル）
-            const debitChoices = shuffle(transaction.debitPool);
-            const creditChoices = shuffle(transaction.creditPool);
-
-            elements.debitChoices.innerHTML = '';
-            elements.creditChoices.innerHTML = '';
-
-            debitChoices.forEach(key => {
-                elements.debitChoices.appendChild(createChoiceButton(key, 'debit'));
-            });
-
-            creditChoices.forEach(key => {
-                elements.creditChoices.appendChild(createChoiceButton(key, 'credit'));
-            });
-
-            // 表示をリセット
-            elements.debitDisplay.textContent = '未選択';
-            elements.debitDisplay.classList.add('empty');
-            elements.creditDisplay.textContent = '未選択';
-            elements.creditDisplay.classList.add('empty');
-            elements.attackBtn.disabled = true;
-        }
-
-        // 回答を送信
-        function submitEntry() {
-            if (!gameState.isRunning || !gameState.currentTransaction) return;
-            if (!gameState.selectedDebit || !gameState.selectedCredit) return;
-
-            const transaction = gameState.currentTransaction;
-            gameState.totalAttempts++;
-
-            const debitCorrect = gameState.selectedDebit === transaction.debit;
-            const creditCorrect = gameState.selectedCredit === transaction.credit;
-
-            // ボタンの色を変更
-            elements.debitChoices.querySelectorAll('.choice-btn').forEach(btn => {
-                if (btn.dataset.account === transaction.debit) {
-                    btn.classList.add('correct');
-                } else if (btn.classList.contains('selected')) {
-                    btn.classList.add('incorrect');
-                }
-            });
-
-            elements.creditChoices.querySelectorAll('.choice-btn').forEach(btn => {
-                if (btn.dataset.account === transaction.credit) {
-                    btn.classList.add('correct');
-                } else if (btn.classList.contains('selected')) {
-                    btn.classList.add('incorrect');
-                }
-            });
-
-            if (debitCorrect && creditCorrect) {
-                // 正解！
-                gameState.correctAttempts++;
-                gameState.combo++;
-                if (gameState.combo > gameState.maxCombo) {
-                    gameState.maxCombo = gameState.combo;
-                }
-
-                const baseScore = transaction.isBoss ? 500 : 100;
-                const comboBonus = Math.floor(gameState.combo * 15);
-                const timeBonus = Math.floor(gameState.timeLeft / 5);
-                const totalScore = baseScore + comboBonus + timeBonus;
-                gameState.score += totalScore;
-
-                gameState.enemiesDefeated++;
-
-                if (gameState.enemiesDefeated % 5 === 0) {
-                    gameState.level++;
-                    elements.level.textContent = gameState.level;
-                }
-
-                updateUI();
-                showEffect('hit', `+${totalScore}`);
-                elements.player.classList.add('attack');
-                setTimeout(() => elements.player.classList.remove('attack'), 300);
-
-                setTimeout(spawnTransaction, 800);
-            } else {
-                // 不正解
-                gameState.combo = 0;
-                takeDamage(15);
-                showEffect('miss', 'MISS');
-                updateUI();
-
-                setTimeout(spawnTransaction, 1000);
-            }
-        }
-
-        // ダメージを受ける
-        function takeDamage(amount) {
-            gameState.hp = Math.max(0, gameState.hp - amount);
-            elements.player.classList.add('damage');
-            setTimeout(() => elements.player.classList.remove('damage'), 300);
-
-            if (gameState.hp <= 0) {
-                gameOver();
-            }
-        }
-
-        // エフェクト表示
-        function showEffect(type, text) {
-            const effect = type === 'hit' ? elements.hitEffect : elements.missEffect;
-            effect.textContent = text;
-            effect.classList.add('show');
-            setTimeout(() => effect.classList.remove('show'), 600);
-        }
-
-        // UI更新
-        function updateUI() {
-            elements.playerHp.style.width = gameState.hp + '%';
-            elements.hpText.textContent = gameState.hp;
-            elements.score.textContent = gameState.score;
-
-            elements.comboCount.textContent = gameState.combo;
-            if (gameState.combo > 0) {
-                elements.comboCount.classList.add('active');
-            } else {
-                elements.comboCount.classList.remove('active');
-            }
-        }
-
-        // タイマー
-        function startTimer() {
-            gameState.timerInterval = setInterval(() => {
-                gameState.timeLeft -= 1;
-                elements.timerFill.style.width = (gameState.timeLeft / gameState.maxTime * 100) + '%';
-
-                if (gameState.timeLeft <= 0) {
-                    gameState.combo = 0;
-                    takeDamage(20);
-                    showEffect('miss', 'TIME UP');
-                    updateUI();
-
-                    if (gameState.hp > 0) {
-                        spawnTransaction();
-                    }
+                if (game.approachValue >= maxTime) {
+                    // 時間切れ - 敵の攻撃
+                    enemyAttack();
                 }
             }, 100);
         }
 
-        // ゲーム開始
+        function enemyAttack() {
+            clearInterval(game.approachTimer);
+
+            $('enemy').classList.add('attacking');
+            setTimeout(() => $('enemy').classList.remove('attacking'), 500);
+
+            $('player').classList.add('damage');
+            setTimeout(() => $('player').classList.remove('damage'), 400);
+
+            $('screenFlash').classList.add('damage');
+            setTimeout(() => $('screenFlash').classList.remove('damage'), 150);
+
+            $('gameContainer').classList.add('shake');
+            setTimeout(() => $('gameContainer').classList.remove('shake'), 300);
+
+            $('damageText').textContent = '-20';
+            $('damageText').classList.add('show');
+            setTimeout(() => $('damageText').classList.remove('show'), 600);
+
+            game.hp -= 20;
+            game.combo = 0;
+            updateUI();
+
+            if (game.hp <= 0) {
+                gameOver();
+            } else {
+                setTimeout(spawnEnemy, 800);
+            }
+        }
+
+        function attack() {
+            if (!game.isRunning || !game.selectedDebit || !game.selectedCredit) return;
+            clearInterval(game.approachTimer);
+
+            const t = game.currentTransaction;
+            const debitOk = game.selectedDebit === t.debit;
+            const creditOk = game.selectedCredit === t.credit;
+
+            // 正解表示
+            $('debitChoices').querySelectorAll('.choice-btn').forEach(btn => {
+                if (btn.dataset.key === t.debit) btn.classList.add('correct');
+                else if (btn.classList.contains('selected')) btn.classList.add('incorrect');
+            });
+            $('creditChoices').querySelectorAll('.choice-btn').forEach(btn => {
+                if (btn.dataset.key === t.credit) btn.classList.add('correct');
+                else if (btn.classList.contains('selected')) btn.classList.add('incorrect');
+            });
+
+            if (debitOk && creditOk) {
+                // 正解！
+                playerAttack();
+            } else {
+                // 不正解
+                game.combo = 0;
+                $('damageText').textContent = 'MISS!';
+                $('damageText').classList.add('show');
+                setTimeout(() => $('damageText').classList.remove('show'), 600);
+
+                setTimeout(() => enemyAttack(), 500);
+            }
+        }
+
+        function playerAttack() {
+            $('player').classList.add('attack');
+            setTimeout(() => $('player').classList.remove('attack'), 400);
+
+            $('enemy').classList.add('hit');
+            setTimeout(() => $('enemy').classList.remove('hit'), 300);
+
+            $('screenFlash').classList.add('hit');
+            setTimeout(() => $('screenFlash').classList.remove('hit'), 100);
+
+            game.enemyHp--;
+            game.combo++;
+            if (game.combo > game.maxCombo) game.maxCombo = game.combo;
+            game.specialGauge += 20;
+
+            const baseScore = game.isBoss ? 200 : 100;
+            const comboBonus = game.combo * 15;
+            const timeBonus = Math.floor((100 - game.approachValue) / 5);
+            const totalScore = baseScore + comboBonus + timeBonus;
+            game.score += totalScore;
+
+            $('hitEffect').textContent = game.enemyHp > 0 ? 'HIT!' : (game.isBoss ? 'DEFEATED!' : 'K.O!');
+            $('hitEffect').classList.add('show');
+            setTimeout(() => $('hitEffect').classList.remove('show'), 500);
+
+            updateUI();
+
+            if (game.enemyHp <= 0) {
+                // 敵撃破
+                $('enemy').classList.add('defeated');
+                game.enemiesDefeated++;
+                if (game.isBoss) game.bossesDefeated++;
+                game.round++;
+
+                setTimeout(spawnEnemy, 800);
+            } else {
+                // ボス継続
+                setTimeout(() => {
+                    game.selectedDebit = null;
+                    game.selectedCredit = null;
+                    $('debitDisplay').textContent = '-';
+                    $('creditDisplay').textContent = '-';
+                    $('debitChoices').querySelectorAll('.choice-btn').forEach(b => {
+                        b.classList.remove('selected', 'correct', 'incorrect');
+                    });
+                    $('creditChoices').querySelectorAll('.choice-btn').forEach(b => {
+                        b.classList.remove('selected', 'correct', 'incorrect');
+                    });
+                    game.approachValue = 0;
+                    startApproachTimer();
+                    updateUI();
+                }, 500);
+            }
+        }
+
+        function specialAttack() {
+            if (game.specialGauge < 100 || !game.isRunning) return;
+
+            game.specialGauge = 0;
+
+            $('player').classList.add('special');
+            setTimeout(() => $('player').classList.remove('special'), 800);
+
+            $('screenFlash').classList.add('hit');
+            setTimeout(() => $('screenFlash').classList.remove('hit'), 100);
+            setTimeout(() => {
+                $('screenFlash').classList.add('hit');
+                setTimeout(() => $('screenFlash').classList.remove('hit'), 100);
+            }, 200);
+
+            $('hitEffect').textContent = 'SPECIAL!';
+            $('hitEffect').classList.add('show');
+            setTimeout(() => $('hitEffect').classList.remove('show'), 500);
+
+            // 敵に大ダメージ（ボスも一撃で倒せる）
+            game.enemyHp -= 3;
+            game.score += 300;
+
+            if (game.enemyHp <= 0) {
+                clearInterval(game.approachTimer);
+                $('enemy').classList.add('defeated');
+                game.enemiesDefeated++;
+                if (game.isBoss) game.bossesDefeated++;
+                game.round++;
+                setTimeout(spawnEnemy, 1000);
+            }
+
+            updateUI();
+        }
+
         function startGame() {
-            gameState = {
+            game = {
                 hp: 100,
+                maxHp: 100,
                 score: 0,
-                level: 1,
+                round: 1,
                 combo: 0,
                 maxCombo: 0,
+                specialGauge: 0,
                 enemiesDefeated: 0,
-                totalAttempts: 0,
-                correctAttempts: 0,
+                bossesDefeated: 0,
+                isRunning: true,
+                isBoss: false,
+                enemyHp: 1,
+                enemyMaxHp: 1,
                 currentTransaction: null,
                 selectedDebit: null,
                 selectedCredit: null,
-                timeLeft: 100,
-                maxTime: 100,
-                timerInterval: null,
-                isRunning: true
+                approachTimer: null,
+                approachValue: 0,
+                recentQuestions: []
             };
 
-            // 出題履歴をリセット
-            recentQuestions = [];
+            $('startOverlay').classList.remove('show');
+            $('gameOverOverlay').classList.remove('show');
+            $('player').classList.remove('attack', 'damage', 'special');
+            $('enemy').classList.remove('defeated', 'hit', 'attacking', 'boss');
 
-            elements.startOverlay.classList.remove('show');
-            elements.gameOverOverlay.classList.remove('show');
+            // UIをリセット
+            $('debitRow').style.display = 'block';
+            $('creditRow').style.display = 'block';
+            $('attackBtn').style.display = 'block';
 
             updateUI();
-            elements.level.textContent = '1';
-
-            spawnTransaction();
-            startTimer();
+            spawnEnemy();
         }
 
-        // ゲームオーバー
         function gameOver() {
-            gameState.isRunning = false;
-            clearInterval(gameState.timerInterval);
+            game.isRunning = false;
+            clearInterval(game.approachTimer);
 
-            const accuracy = gameState.totalAttempts > 0
-                ? Math.round(gameState.correctAttempts / gameState.totalAttempts * 100)
-                : 0;
+            $('resultTitle').textContent = game.bossesDefeated >= 3 ? 'VICTORY!' : 'GAME OVER';
+            $('finalScore').textContent = game.score;
+            $('finalCombo').textContent = game.maxCombo;
+            $('finalEnemies').textContent = game.enemiesDefeated;
+            $('finalBosses').textContent = game.bossesDefeated;
 
-            document.getElementById('resultTitle').textContent =
-                gameState.enemiesDefeated >= 15 ? 'VICTORY!' : 'GAME OVER';
-            document.getElementById('finalScore').textContent = gameState.score;
-            document.getElementById('finalCombo').textContent = gameState.maxCombo;
-            document.getElementById('finalEnemies').textContent = gameState.enemiesDefeated;
-            document.getElementById('finalAccuracy').textContent = accuracy + '%';
-
-            elements.gameOverOverlay.classList.add('show');
+            $('gameOverOverlay').classList.add('show');
         }
 
-        // キーボードショートカット
-        document.addEventListener('keydown', (e) => {
-            if (!gameState.isRunning) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    startGame();
-                }
-                return;
-            }
-
+        // キーボード
+        document.addEventListener('keydown', e => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                submitEntry();
+                if (!game.isRunning) startGame();
+                else attack();
             }
         });
     </script>
