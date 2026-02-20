@@ -746,12 +746,182 @@
             color: #888;
         }
 
-        @media (max-height: 700px) {
-            .player, .enemy-sprite { font-size: 48px; }
-            .enemy.boss .enemy-sprite { font-size: 60px; }
-            .choice-btn { padding: 8px 4px; }
-            .choice-en { font-size: 9px; }
-            .choice-jp { font-size: 10px; }
+        /* スマホ対応 */
+        @media (max-width: 500px) {
+            .game-header {
+                padding: 8px 10px;
+            }
+
+            .hp-bar-bg {
+                width: 100px;
+                height: 14px;
+            }
+
+            .special-bar-bg {
+                width: 100px;
+                height: 10px;
+            }
+
+            .stat-box {
+                padding: 4px 8px;
+            }
+
+            .stat-value {
+                font-size: 16px;
+            }
+
+            .player {
+                font-size: 50px;
+                left: 10%;
+                bottom: 180px;
+            }
+
+            .enemy {
+                bottom: 180px;
+            }
+
+            .enemy-sprite {
+                font-size: 50px;
+            }
+
+            .enemy.boss .enemy-sprite {
+                font-size: 65px;
+            }
+
+            .enemy-info {
+                min-width: 150px;
+                padding: 6px 10px;
+            }
+
+            .enemy-name {
+                font-size: 12px;
+            }
+
+            .ground {
+                bottom: 175px;
+            }
+
+            .battlefield {
+                height: 180px;
+            }
+
+            .approach-indicator {
+                bottom: 170px;
+                width: 70%;
+            }
+
+            .input-area {
+                bottom: 5px;
+                width: 98%;
+            }
+
+            .question-display {
+                padding: 6px;
+                margin-bottom: 6px;
+            }
+
+            .question-text {
+                font-size: 14px;
+            }
+
+            .question-text-en {
+                font-size: 10px;
+            }
+
+            .selection-row {
+                margin-bottom: 5px;
+            }
+
+            .selection-label {
+                font-size: 11px;
+                margin-bottom: 4px;
+            }
+
+            .choices {
+                gap: 4px;
+            }
+
+            .choice-btn {
+                padding: 12px 4px;
+                min-height: 50px;
+                font-size: 10px;
+            }
+
+            .choice-en {
+                font-size: 9px;
+            }
+
+            .choice-jp {
+                font-size: 11px;
+            }
+
+            .button-row {
+                gap: 8px;
+            }
+
+            .attack-btn {
+                padding: 14px;
+                font-size: 18px;
+                min-height: 55px;
+            }
+
+            .special-btn {
+                padding: 14px 16px;
+                font-size: 16px;
+                min-height: 55px;
+            }
+
+            .combo-display {
+                top: 55px;
+                left: 10px;
+            }
+
+            .combo-count {
+                font-size: 36px;
+            }
+
+            .combo-label {
+                font-size: 11px;
+            }
+
+            .hit-effect {
+                font-size: 56px;
+                top: 35%;
+            }
+
+            .damage-text {
+                font-size: 36px;
+            }
+
+            .boss-warning-text {
+                font-size: 32px;
+            }
+
+            .game-title {
+                font-size: 32px;
+            }
+
+            .instructions {
+                padding: 15px;
+                font-size: 12px;
+            }
+
+            .start-btn {
+                padding: 16px 50px;
+                font-size: 20px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .player, .enemy-sprite { font-size: 40px; }
+            .enemy.boss .enemy-sprite { font-size: 50px; }
+            .player { bottom: 160px; }
+            .enemy { bottom: 160px; }
+            .ground { bottom: 155px; }
+            .battlefield { height: 160px; }
+            .approach-indicator { bottom: 150px; }
+            .choice-btn { padding: 10px 4px; min-height: 44px; }
+            .attack-btn, .special-btn { padding: 12px; min-height: 48px; }
         }
     </style>
 </head>
@@ -766,11 +936,11 @@
                 <p class="game-subtitle">仕訳格闘ゲーム</p>
                 <div class="instructions">
                     <h3>遊び方</h3>
-                    <p>⚔️ 敵が迫ってくる前に正しい仕訳を選べ！</p>
-                    <p>🎯 借方(Dr)と貸方(Cr)を選択してATTACK!</p>
-                    <p>💥 正解で敵を攻撃、不正解で反撃される</p>
-                    <p>🔥 コンボで必殺ゲージが溜まる</p>
-                    <p>👑 5体ごとにボス登場！複数回攻撃で撃破</p>
+                    <p>⚔️ 敵が迫る前に正しい仕訳を選べ！</p>
+                    <p>🎯 Dr/Crを選択してATTACK!</p>
+                    <p>💥 正解で攻撃、不正解で反撃</p>
+                    <p>🔥 コンボで必殺ゲージUP</p>
+                    <p>👑 5体ごとにボス！必殺技で倒せ！</p>
                 </div>
                 <button class="start-btn" onclick="startGame()">FIGHT!</button>
             </div>
