@@ -746,182 +746,160 @@
             color: #888;
         }
 
-        /* スマホ対応 */
-        @media (max-width: 500px) {
+        /* スマホ対応 - 縦型レイアウト */
+        @media (max-width: 600px) {
+            .game-container {
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                height: 100dvh;
+            }
+
+            .bg-effect { display: none; }
+
+            /* ヘッダー：コンパクト */
             .game-header {
-                padding: 8px 10px;
+                position: relative;
+                padding: 8px;
+                flex-shrink: 0;
             }
 
-            .hp-bar-bg {
-                width: 100px;
-                height: 14px;
-            }
+            .hp-bar-bg { width: 80px; height: 12px; }
+            .special-bar-bg { width: 80px; height: 8px; }
+            .hp-label, .special-label { font-size: 10px; }
+            .stat-box { padding: 3px 6px; }
+            .stat-value { font-size: 14px; }
+            .stat-label { font-size: 8px; }
 
-            .special-bar-bg {
-                width: 100px;
-                height: 10px;
-            }
-
-            .stat-box {
-                padding: 4px 8px;
-            }
-
-            .stat-value {
-                font-size: 16px;
-            }
-
-            .player {
-                font-size: 50px;
-                left: 10%;
-                bottom: 180px;
-            }
-
-            .enemy {
-                bottom: 180px;
-            }
-
-            .enemy-sprite {
-                font-size: 50px;
-            }
-
-            .enemy.boss .enemy-sprite {
-                font-size: 65px;
-            }
-
-            .enemy-info {
-                min-width: 150px;
-                padding: 6px 10px;
-            }
-
-            .enemy-name {
-                font-size: 12px;
-            }
-
-            .ground {
-                bottom: 175px;
-            }
-
-            .battlefield {
-                height: 180px;
-            }
-
-            .approach-indicator {
-                bottom: 170px;
-                width: 70%;
-            }
-
+            /* 入力エリア：上部に配置 */
             .input-area {
-                bottom: 5px;
-                width: 98%;
+                position: relative;
+                top: auto;
+                bottom: auto;
+                left: auto;
+                transform: none;
+                width: 100%;
+                max-width: none;
+                padding: 5px 8px;
+                flex-shrink: 0;
+                order: -1;
             }
 
             .question-display {
-                padding: 6px;
-                margin-bottom: 6px;
+                padding: 8px;
+                margin-bottom: 8px;
             }
 
-            .question-text {
-                font-size: 14px;
-            }
+            .question-text { font-size: 15px; }
+            .question-text-en { font-size: 10px; }
 
-            .question-text-en {
-                font-size: 10px;
-            }
+            .selection-row { margin-bottom: 6px; }
+            .selection-label { font-size: 11px; margin-bottom: 4px; }
 
-            .selection-row {
-                margin-bottom: 5px;
-            }
-
-            .selection-label {
-                font-size: 11px;
-                margin-bottom: 4px;
-            }
-
-            .choices {
-                gap: 4px;
-            }
+            .choices { gap: 5px; }
 
             .choice-btn {
-                padding: 12px 4px;
-                min-height: 50px;
-                font-size: 10px;
+                padding: 14px 6px;
+                min-height: 54px;
             }
 
-            .choice-en {
-                font-size: 9px;
-            }
+            .choice-en { font-size: 9px; }
+            .choice-jp { font-size: 12px; font-weight: bold; }
 
-            .choice-jp {
-                font-size: 11px;
-            }
-
-            .button-row {
-                gap: 8px;
-            }
+            .button-row { gap: 8px; margin-top: 5px; }
 
             .attack-btn {
-                padding: 14px;
+                padding: 16px;
                 font-size: 18px;
-                min-height: 55px;
+                min-height: 56px;
             }
 
             .special-btn {
-                padding: 14px 16px;
+                padding: 16px;
                 font-size: 16px;
-                min-height: 55px;
+                min-height: 56px;
             }
 
+            /* バトルエリア：下部にコンパクト配置 */
+            .battlefield {
+                position: relative;
+                height: auto;
+                flex: 1;
+                min-height: 100px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 10px 20px;
+                background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 100%);
+            }
+
+            .ground { display: none; }
+
+            .player {
+                position: relative;
+                bottom: auto;
+                left: auto;
+                font-size: 48px;
+            }
+
+            .enemy {
+                position: relative;
+                bottom: auto;
+                right: auto !important;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .enemy-sprite { font-size: 48px; }
+            .enemy.boss .enemy-sprite { font-size: 60px; }
+
+            .enemy-info {
+                position: relative;
+                bottom: auto;
+                left: auto;
+                transform: none;
+                min-width: 120px;
+                padding: 5px 8px;
+                margin-bottom: 5px;
+            }
+
+            .enemy-name { font-size: 11px; }
+            .enemy-name-en { font-size: 9px; }
+
+            .approach-indicator {
+                position: absolute;
+                bottom: 5px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80%;
+            }
+
+            /* コンボ表示 */
             .combo-display {
-                top: 55px;
-                left: 10px;
+                position: absolute;
+                top: auto;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
             }
 
-            .combo-count {
-                font-size: 36px;
-            }
+            .combo-count { font-size: 32px; }
+            .combo-label { font-size: 10px; }
 
-            .combo-label {
-                font-size: 11px;
-            }
+            /* エフェクト */
+            .hit-effect { font-size: 48px; top: 50%; }
+            .damage-text { font-size: 32px; top: 50%; left: 50%; transform: translateX(-50%); }
+            .boss-warning-text { font-size: 28px; }
 
-            .hit-effect {
-                font-size: 56px;
-                top: 35%;
-            }
-
-            .damage-text {
-                font-size: 36px;
-            }
-
-            .boss-warning-text {
-                font-size: 32px;
-            }
-
-            .game-title {
-                font-size: 32px;
-            }
-
-            .instructions {
-                padding: 15px;
-                font-size: 12px;
-            }
-
-            .start-btn {
-                padding: 16px 50px;
-                font-size: 20px;
-            }
-        }
-
-        @media (max-height: 600px) {
-            .player, .enemy-sprite { font-size: 40px; }
-            .enemy.boss .enemy-sprite { font-size: 50px; }
-            .player { bottom: 160px; }
-            .enemy { bottom: 160px; }
-            .ground { bottom: 155px; }
-            .battlefield { height: 160px; }
-            .approach-indicator { bottom: 150px; }
-            .choice-btn { padding: 10px 4px; min-height: 44px; }
-            .attack-btn, .special-btn { padding: 12px; min-height: 48px; }
+            /* オーバーレイ */
+            .game-title { font-size: 28px; }
+            .instructions { padding: 12px; font-size: 12px; line-height: 1.7; }
+            .instructions h3 { font-size: 14px; }
+            .start-btn { padding: 14px 40px; font-size: 18px; }
+            .result-stats { gap: 8px; }
+            .result-stat { padding: 10px; }
+            .result-stat .value { font-size: 22px; }
         }
     </style>
 </head>
