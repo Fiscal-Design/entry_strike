@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -741,6 +742,7 @@
         const TRANSACTIONS = {
             easy: [
                 {
+                    id: 'e1',
                     title: '備品の購入（現金）',
                     titleEn: 'Purchase equipment with cash',
                     debit: 'equipment',
@@ -749,14 +751,16 @@
                     creditPool: ['cash', 'accountsPayable', 'notesPayable', 'accruedExpenses']
                 },
                 {
+                    id: 'e2',
                     title: '売掛金の回収',
                     titleEn: 'Collection of receivables',
                     debit: 'cash',
                     credit: 'accountsReceivable',
                     debitPool: ['cash', 'inventory', 'supplies', 'equipment'],
-                    creditPool: ['accountsReceivable', 'sales', 'unearnedRevenue', 'cash']
+                    creditPool: ['accountsReceivable', 'sales', 'unearnedRevenue', 'accountsPayable']
                 },
                 {
+                    id: 'e3',
                     title: '消耗品の購入（現金）',
                     titleEn: 'Purchase supplies with cash',
                     debit: 'supplies',
@@ -765,6 +769,7 @@
                     creditPool: ['cash', 'accountsPayable', 'notesPayable', 'accruedExpenses']
                 },
                 {
+                    id: 'e4',
                     title: '買掛金の支払い',
                     titleEn: 'Payment of accounts payable',
                     debit: 'accountsPayable',
@@ -773,16 +778,81 @@
                     creditPool: ['cash', 'accountsReceivable', 'inventory', 'supplies']
                 },
                 {
+                    id: 'e5',
                     title: '現金売上',
                     titleEn: 'Cash sales',
                     debit: 'cash',
                     credit: 'sales',
                     debitPool: ['cash', 'accountsReceivable', 'inventory', 'supplies'],
                     creditPool: ['sales', 'serviceRevenue', 'unearnedRevenue', 'interestIncome']
+                },
+                {
+                    id: 'e6',
+                    title: '商品の仕入（現金）',
+                    titleEn: 'Purchase inventory with cash',
+                    debit: 'inventory',
+                    credit: 'cash',
+                    debitPool: ['inventory', 'supplies', 'equipment', 'prepaidExpenses'],
+                    creditPool: ['cash', 'accountsPayable', 'notesPayable', 'unearnedRevenue']
+                },
+                {
+                    id: 'e7',
+                    title: '商品の仕入（掛け）',
+                    titleEn: 'Purchase inventory on account',
+                    debit: 'inventory',
+                    credit: 'accountsPayable',
+                    debitPool: ['inventory', 'supplies', 'equipment', 'buildings'],
+                    creditPool: ['accountsPayable', 'cash', 'notesPayable', 'accruedExpenses']
+                },
+                {
+                    id: 'e8',
+                    title: '建物の購入（現金）',
+                    titleEn: 'Purchase building with cash',
+                    debit: 'buildings',
+                    credit: 'cash',
+                    debitPool: ['buildings', 'equipment', 'land', 'inventory'],
+                    creditPool: ['cash', 'notesPayable', 'bondsPayable', 'accountsPayable']
+                },
+                {
+                    id: 'e9',
+                    title: '土地の購入（現金）',
+                    titleEn: 'Purchase land with cash',
+                    debit: 'land',
+                    credit: 'cash',
+                    debitPool: ['land', 'buildings', 'equipment', 'inventory'],
+                    creditPool: ['cash', 'notesPayable', 'bondsPayable', 'accountsPayable']
+                },
+                {
+                    id: 'e10',
+                    title: '支払手形の決済',
+                    titleEn: 'Payment of notes payable',
+                    debit: 'notesPayable',
+                    credit: 'cash',
+                    debitPool: ['notesPayable', 'accountsPayable', 'accruedExpenses', 'bondsPayable'],
+                    creditPool: ['cash', 'accountsReceivable', 'inventory', 'equipment']
+                },
+                {
+                    id: 'e11',
+                    title: 'サービス収益（現金）',
+                    titleEn: 'Service revenue (cash)',
+                    debit: 'cash',
+                    credit: 'serviceRevenue',
+                    debitPool: ['cash', 'accountsReceivable', 'supplies', 'inventory'],
+                    creditPool: ['serviceRevenue', 'sales', 'interestIncome', 'unearnedRevenue']
+                },
+                {
+                    id: 'e12',
+                    title: '前受金の受取',
+                    titleEn: 'Receive advance payment',
+                    debit: 'cash',
+                    credit: 'unearnedRevenue',
+                    debitPool: ['cash', 'accountsReceivable', 'inventory', 'supplies'],
+                    creditPool: ['unearnedRevenue', 'sales', 'serviceRevenue', 'accountsPayable']
                 }
             ],
             medium: [
                 {
+                    id: 'm1',
                     title: '減価償却の計上',
                     titleEn: 'Record depreciation expense',
                     debit: 'depreciationExpense',
@@ -791,6 +861,7 @@
                     creditPool: ['accumulatedDepreciation', 'cash', 'accountsPayable', 'equipment']
                 },
                 {
+                    id: 'm2',
                     title: '掛け売上',
                     titleEn: 'Sales on account',
                     debit: 'accountsReceivable',
@@ -799,6 +870,7 @@
                     creditPool: ['sales', 'serviceRevenue', 'unearnedRevenue', 'accountsPayable']
                 },
                 {
+                    id: 'm3',
                     title: '給与の支払い',
                     titleEn: 'Payment of salaries',
                     debit: 'salariesExpense',
@@ -807,6 +879,7 @@
                     creditPool: ['cash', 'accruedExpenses', 'accountsPayable', 'notesPayable']
                 },
                 {
+                    id: 'm4',
                     title: '前払費用の計上',
                     titleEn: 'Record prepaid expenses',
                     debit: 'prepaidExpenses',
@@ -815,6 +888,7 @@
                     creditPool: ['cash', 'accountsPayable', 'accruedExpenses', 'notesPayable']
                 },
                 {
+                    id: 'm5',
                     title: '未払費用の計上',
                     titleEn: 'Accrued expenses',
                     debit: 'utilitiesExpense',
@@ -823,16 +897,72 @@
                     creditPool: ['accruedExpenses', 'cash', 'accountsPayable', 'notesPayable']
                 },
                 {
+                    id: 'm6',
                     title: '消耗品の費用化',
                     titleEn: 'Supplies used',
                     debit: 'suppliesExpense',
                     credit: 'supplies',
                     debitPool: ['suppliesExpense', 'depreciationExpense', 'utilitiesExpense', 'rentExpense'],
                     creditPool: ['supplies', 'cash', 'inventory', 'prepaidExpenses']
+                },
+                {
+                    id: 'm7',
+                    title: '家賃の支払い',
+                    titleEn: 'Payment of rent',
+                    debit: 'rentExpense',
+                    credit: 'cash',
+                    debitPool: ['rentExpense', 'salariesExpense', 'utilitiesExpense', 'interestExpense'],
+                    creditPool: ['cash', 'accountsPayable', 'accruedExpenses', 'prepaidExpenses']
+                },
+                {
+                    id: 'm8',
+                    title: '売上原価の計上',
+                    titleEn: 'Record cost of goods sold',
+                    debit: 'costOfGoodsSold',
+                    credit: 'inventory',
+                    debitPool: ['costOfGoodsSold', 'suppliesExpense', 'depreciationExpense', 'salariesExpense'],
+                    creditPool: ['inventory', 'supplies', 'cash', 'accountsPayable']
+                },
+                {
+                    id: 'm9',
+                    title: '受取利息の計上',
+                    titleEn: 'Record interest income',
+                    debit: 'cash',
+                    credit: 'interestIncome',
+                    debitPool: ['cash', 'accountsReceivable', 'inventory', 'prepaidExpenses'],
+                    creditPool: ['interestIncome', 'sales', 'serviceRevenue', 'unearnedRevenue']
+                },
+                {
+                    id: 'm10',
+                    title: '前払費用の費用化',
+                    titleEn: 'Recognize prepaid as expense',
+                    debit: 'rentExpense',
+                    credit: 'prepaidExpenses',
+                    debitPool: ['rentExpense', 'suppliesExpense', 'utilitiesExpense', 'salariesExpense'],
+                    creditPool: ['prepaidExpenses', 'cash', 'supplies', 'inventory']
+                },
+                {
+                    id: 'm11',
+                    title: '未払給与の計上',
+                    titleEn: 'Accrue salaries payable',
+                    debit: 'salariesExpense',
+                    credit: 'accruedExpenses',
+                    debitPool: ['salariesExpense', 'rentExpense', 'utilitiesExpense', 'interestExpense'],
+                    creditPool: ['accruedExpenses', 'cash', 'accountsPayable', 'notesPayable']
+                },
+                {
+                    id: 'm12',
+                    title: '掛けサービス収益',
+                    titleEn: 'Service revenue on account',
+                    debit: 'accountsReceivable',
+                    credit: 'serviceRevenue',
+                    debitPool: ['accountsReceivable', 'cash', 'supplies', 'inventory'],
+                    creditPool: ['serviceRevenue', 'sales', 'unearnedRevenue', 'interestIncome']
                 }
             ],
             hard: [
                 {
+                    id: 'h1',
                     title: '社債の発行（額面）',
                     titleEn: 'Issue bonds at par',
                     debit: 'cash',
@@ -841,6 +971,7 @@
                     creditPool: ['bondsPayable', 'commonStock', 'notesPayable', 'leaseLiability']
                 },
                 {
+                    id: 'h2',
                     title: '前受収益の収益化',
                     titleEn: 'Recognize earned revenue',
                     debit: 'unearnedRevenue',
@@ -849,16 +980,63 @@
                     creditPool: ['serviceRevenue', 'sales', 'interestIncome', 'cash']
                 },
                 {
+                    id: 'h3',
                     title: '支払利息の未払計上',
                     titleEn: 'Accrue interest expense',
                     debit: 'interestExpense',
                     credit: 'accruedExpenses',
                     debitPool: ['interestExpense', 'rentExpense', 'salariesExpense', 'depreciationExpense'],
                     creditPool: ['accruedExpenses', 'cash', 'bondsPayable', 'notesPayable']
+                },
+                {
+                    id: 'h4',
+                    title: '株式の発行',
+                    titleEn: 'Issue common stock',
+                    debit: 'cash',
+                    credit: 'commonStock',
+                    debitPool: ['cash', 'equipment', 'buildings', 'land'],
+                    creditPool: ['commonStock', 'bondsPayable', 'retainedEarnings', 'accountsPayable']
+                },
+                {
+                    id: 'h5',
+                    title: '社債利息の支払い',
+                    titleEn: 'Pay bond interest',
+                    debit: 'interestExpense',
+                    credit: 'cash',
+                    debitPool: ['interestExpense', 'rentExpense', 'salariesExpense', 'depreciationExpense'],
+                    creditPool: ['cash', 'accruedExpenses', 'bondsPayable', 'accountsPayable']
+                },
+                {
+                    id: 'h6',
+                    title: '配当金の支払い',
+                    titleEn: 'Pay dividends',
+                    debit: 'retainedEarnings',
+                    credit: 'cash',
+                    debitPool: ['retainedEarnings', 'commonStock', 'interestExpense', 'salariesExpense'],
+                    creditPool: ['cash', 'accountsPayable', 'bondsPayable', 'accruedExpenses']
+                },
+                {
+                    id: 'h7',
+                    title: '未払利息の支払い',
+                    titleEn: 'Pay accrued interest',
+                    debit: 'accruedExpenses',
+                    credit: 'cash',
+                    debitPool: ['accruedExpenses', 'interestExpense', 'accountsPayable', 'notesPayable'],
+                    creditPool: ['cash', 'bondsPayable', 'accountsReceivable', 'inventory']
+                },
+                {
+                    id: 'h8',
+                    title: '長期借入金の返済',
+                    titleEn: 'Repay long-term debt',
+                    debit: 'bondsPayable',
+                    credit: 'cash',
+                    debitPool: ['bondsPayable', 'notesPayable', 'leaseLiability', 'accountsPayable'],
+                    creditPool: ['cash', 'accountsReceivable', 'equipment', 'inventory']
                 }
             ],
             boss: [
                 {
+                    id: 'b1',
                     title: '【BOSS】リース資産の計上',
                     titleEn: 'Recognize lease (IFRS16)',
                     debit: 'rightOfUseAsset',
@@ -868,6 +1046,7 @@
                     isBoss: true
                 },
                 {
+                    id: 'b2',
                     title: '【BOSS】のれんの計上',
                     titleEn: 'Record goodwill from acquisition',
                     debit: 'goodwill',
@@ -877,6 +1056,7 @@
                     isBoss: true
                 },
                 {
+                    id: 'b3',
                     title: '【BOSS】連結消去：投資と資本',
                     titleEn: 'Eliminate investment vs equity',
                     debit: 'commonStock',
@@ -884,9 +1064,42 @@
                     debitPool: ['commonStock', 'retainedEarnings', 'goodwill', 'rightOfUseAsset'],
                     creditPool: ['investmentInSub', 'cash', 'bondsPayable', 'leaseLiability'],
                     isBoss: true
+                },
+                {
+                    id: 'b4',
+                    title: '【BOSS】リース負債の返済',
+                    titleEn: 'Lease payment (IFRS16)',
+                    debit: 'leaseLiability',
+                    credit: 'cash',
+                    debitPool: ['leaseLiability', 'bondsPayable', 'rightOfUseAsset', 'interestExpense'],
+                    creditPool: ['cash', 'accountsPayable', 'accruedExpenses', 'notesPayable'],
+                    isBoss: true
+                },
+                {
+                    id: 'b5',
+                    title: '【BOSS】子会社への投資',
+                    titleEn: 'Investment in subsidiary',
+                    debit: 'investmentInSub',
+                    credit: 'cash',
+                    debitPool: ['investmentInSub', 'goodwill', 'equipment', 'buildings'],
+                    creditPool: ['cash', 'commonStock', 'bondsPayable', 'accountsPayable'],
+                    isBoss: true
+                },
+                {
+                    id: 'b6',
+                    title: '【BOSS】使用権資産の償却',
+                    titleEn: 'Amortize right-of-use asset',
+                    debit: 'depreciationExpense',
+                    credit: 'rightOfUseAsset',
+                    debitPool: ['depreciationExpense', 'interestExpense', 'rentExpense', 'suppliesExpense'],
+                    creditPool: ['rightOfUseAsset', 'accumulatedDepreciation', 'leaseLiability', 'cash'],
+                    isBoss: true
                 }
             ]
         };
+
+        // 最近出題された問題を追跡（連続出題防止用）
+        let recentQuestions = [];
 
         // ゲーム状態
         let gameState = {
@@ -1010,7 +1223,22 @@
                 pool = TRANSACTIONS.easy;
             }
 
-            const transaction = pool[Math.floor(Math.random() * pool.length)];
+            // 最近出題された問題を除外
+            let availablePool = pool.filter(t => !recentQuestions.includes(t.id));
+
+            // 全部除外されてしまったら履歴をリセット
+            if (availablePool.length === 0) {
+                recentQuestions = [];
+                availablePool = pool;
+            }
+
+            const transaction = availablePool[Math.floor(Math.random() * availablePool.length)];
+
+            // 履歴に追加（最大5問まで記録）
+            recentQuestions.push(transaction.id);
+            if (recentQuestions.length > 5) {
+                recentQuestions.shift();
+            }
             gameState.currentTransaction = transaction;
             gameState.selectedDebit = null;
             gameState.selectedCredit = null;
@@ -1192,6 +1420,9 @@
                 timerInterval: null,
                 isRunning: true
             };
+
+            // 出題履歴をリセット
+            recentQuestions = [];
 
             elements.startOverlay.classList.remove('show');
             elements.gameOverOverlay.classList.remove('show');
